@@ -29,6 +29,12 @@
       "description": "Avatar for patient Oliver Jones",
       "imageUrl": "https://picsum.photos/seed/patient5/100/100",
       "imageHint": "man portrait"
+    },
+    {
+      "id": "landing-hero",
+      "description": "Hero image for the landing page showing a modern clinic interior.",
+      "imageUrl": "https://picsum.photos/seed/hero/1920/1080",
+      "imageHint": "clinic interior"
     }
   ]
 }
