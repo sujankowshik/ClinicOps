@@ -11,7 +11,7 @@ import {
   Calendar,
   Boxes,
   HeartPulse,
-  MessageSquareQuote
+  MessageSquareQuote,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
