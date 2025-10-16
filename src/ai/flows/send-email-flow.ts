@@ -34,11 +34,10 @@ const sendEmailFlow = ai.defineFlow(
     
     const { EMAIL_USER, EMAIL_APP_PASSWORD } = process.env;
 
-    if (!EMAIL_USER || !EMAIL_APP_PASSWORD) {
+    if (!EMAIL_USER || !EMAIL_APP_PASSWORD || EMAIL_USER === 'your-email@gmail.com') {
       console.error('Email credentials are not set in environment variables.');
-      // Intentionally not throwing an error to avoid crashing the app if email is not configured.
-      // The UI should handle this case.
-      return { success: false };
+      // Throw an error to be caught by the calling function.
+      throw new Error('Email service is not configured. Please set EMAIL_USER and EMAIL_APP_PASSWORD in your .env file.');
     }
 
     const transporter = nodemailer.createTransport({
@@ -62,7 +61,8 @@ const sendEmailFlow = ai.defineFlow(
       return { success: true };
     } catch (error) {
       console.error('Failed to send email:', error);
-      return { success: false };
+      // Re-throw the error to be handled by the caller.
+      throw new Error('Failed to send email via nodemailer.');
     }
   }
 );
