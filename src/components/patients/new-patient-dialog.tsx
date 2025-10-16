@@ -32,6 +32,8 @@ import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
+import type { Patient } from '@/lib/types';
+
 
 const patientFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -41,7 +43,11 @@ const patientFormSchema = z.object({
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
 
-export function NewPatientDialog() {
+interface NewPatientDialogProps {
+  onAddPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => void;
+}
+
+export function NewPatientDialog({ onAddPatient }: NewPatientDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const form = useForm<PatientFormValues>({
@@ -49,12 +55,11 @@ export function NewPatientDialog() {
     defaultValues: {
       name: '',
       age: 0,
-      gender: undefined,
     },
   });
 
   function onSubmit(data: PatientFormValues) {
-    console.log(data);
+    onAddPatient(data);
     toast({
       title: 'Patient Registered!',
       description: `${data.name} has been added to the patient list.`,
