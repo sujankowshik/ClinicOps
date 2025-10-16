@@ -6,7 +6,7 @@ import {
   doctors as initialDoctors,
 } from '@/lib/data';
 import type { Patient, Doctor, Appointment, InventoryItem, Visit } from '@/lib/types';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
