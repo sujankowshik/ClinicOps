@@ -28,7 +28,7 @@ export type Appointment = {
   patientName: string;
   doctorName: string;
   date: string;
-  time: string;
+  time?: string;
   status: 'Upcoming' | 'Completed' | 'Cancelled';
 };
 

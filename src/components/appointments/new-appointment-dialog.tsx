@@ -18,7 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -42,7 +41,6 @@ const appointmentFormSchema = z.object({
   patientId: z.string().min(1, 'Patient is required.'),
   doctorId: z.string().min(1, 'Doctor is required.'),
   date: z.date({ required_error: 'A date is required.' }),
-  time: z.string().min(1, 'Time is required.'),
 });
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
@@ -50,7 +48,7 @@ type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 interface NewAppointmentDialogProps {
   patients: Patient[];
   doctors: Doctor[];
-  onAddAppointment: (appointment: Omit<Appointment, 'id' | 'status'>) => void;
+  onAddAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
 }
 
 export function NewAppointmentDialog({
@@ -65,7 +63,6 @@ export function NewAppointmentDialog({
     defaultValues: {
       patientId: '',
       doctorId: '',
-      time: '',
     },
   });
 
@@ -87,7 +84,6 @@ export function NewAppointmentDialog({
         patientName: patient.name,
         doctorName: doctor.name,
         date: format(data.date, 'yyyy-MM-dd'),
-        time: data.time,
     });
 
     toast({
@@ -110,7 +106,7 @@ export function NewAppointmentDialog({
         <DialogHeader>
           <DialogTitle className="font-headline">Schedule New Appointment</DialogTitle>
           <DialogDescription>
-            Select a patient, doctor, and time for the new appointment.
+            Select a patient, doctor, and date for the new appointment.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -163,60 +159,45 @@ export function NewAppointmentDialog({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
-               <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, 'PPP')
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Time</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, 'PPP')
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
              <DialogFooter>
               <Button type="submit">Schedule</Button>
             </DialogFooter>

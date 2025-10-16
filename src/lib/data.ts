@@ -71,12 +71,12 @@ export const doctors: Doctor[] = [
 ];
 
 export const appointments: Appointment[] = [
-  { id: '1', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], time: '10:00 AM', status: 'Upcoming' },
-  { id: '2', patientId: '2', patientName: 'Olivia Smith', doctorName: 'Dr. Ben Carter', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], time: '11:30 AM', status: 'Upcoming' },
-  { id: '3', patientId: '3', patientName: 'Noah Williams', doctorName: 'Dr. Isla Martinez', date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0], time: '09:00 AM', status: 'Upcoming' },
-  { id: '4', patientId: '4', patientName: 'Emma Brown', doctorName: 'Dr. Ben Carter', date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], time: '02:00 PM', status: 'Completed' },
-  { id: '5', patientId: '5', patientName: 'Oliver Jones', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0], time: '03:00 PM', status: 'Completed' },
-  { id: '6', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString().split('T')[0], time: '10:00 AM', status: 'Cancelled' },
+  { id: '1', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], status: 'Upcoming' },
+  { id: '2', patientId: '2', patientName: 'Olivia Smith', doctorName: 'Dr. Ben Carter', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], status: 'Upcoming' },
+  { id: '3', patientId: '3', patientName: 'Noah Williams', doctorName: 'Dr. Isla Martinez', date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0], status: 'Upcoming' },
+  { id: '4', patientId: '4', patientName: 'Emma Brown', doctorName: 'Dr. Ben Carter', date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], status: 'Completed' },
+  { id: '5', patientId: '5', patientName: 'Oliver Jones', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0], status: 'Completed' },
+  { id: '6', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString().split('T')[0], status: 'Cancelled' },
 ];
 
 export const inventory: InventoryItem[] = [

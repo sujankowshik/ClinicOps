@@ -14,7 +14,7 @@ type DashboardContextType = {
   doctors: Doctor[];
   appointments: Appointment[];
   addPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => void;
-  addAppointment: (appointment: Omit<Appointment, 'id' | 'status'>) => void;
+  addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -49,11 +49,12 @@ export default function DashboardLayout({
     setPatients(prevPatients => [newPatient, ...prevPatients]);
   };
   
-  const addAppointment = (newAppointmentData: Omit<Appointment, 'id' | 'status'>) => {
+  const addAppointment = (newAppointmentData: Omit<Appointment, 'id' | 'status' | 'time'>) => {
     const newAppointment: Appointment = {
       id: `app${appointments.length + 1}`,
       ...newAppointmentData,
       status: 'Upcoming',
+      time: 'All day',
     };
     setAppointments(prevAppointments => [newAppointment, ...prevAppointments]);
   }

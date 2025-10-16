@@ -30,7 +30,6 @@ export function AppointmentList({ appointments }: AppointmentListProps) {
           <TableHead>Patient</TableHead>
           <TableHead>Doctor</TableHead>
           <TableHead>Date</TableHead>
-          <TableHead>Time</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -42,7 +41,6 @@ export function AppointmentList({ appointments }: AppointmentListProps) {
               <TableCell className="font-medium">{appt.patientName}</TableCell>
               <TableCell>{appt.doctorName}</TableCell>
               <TableCell>{format(parseISO(appt.date), 'MMMM d, yyyy')}</TableCell>
-              <TableCell>{appt.time}</TableCell>
               <TableCell>
                 <Badge
                   variant={
@@ -78,7 +76,7 @@ export function AppointmentList({ appointments }: AppointmentListProps) {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={5} className="h-24 text-center">
               No appointments found.
             </TableCell>
           </TableRow>
