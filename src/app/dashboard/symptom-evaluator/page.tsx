@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Sparkles, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   symptoms: z.string().min(10, 'Please provide a detailed description of the symptoms.'),
@@ -48,6 +49,7 @@ export default function SymptomEvaluatorPage() {
     defaultValues: {
       symptoms: '',
       patientDetails: '',
+      age: 0,
     },
   });
 

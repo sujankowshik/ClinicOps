@@ -46,6 +46,11 @@ export function NewPatientDialog() {
   const [open, setOpen] = useState(false);
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
+    defaultValues: {
+      name: '',
+      age: 0,
+      gender: undefined,
+    },
   });
 
   function onSubmit(data: PatientFormValues) {

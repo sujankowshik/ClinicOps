@@ -60,6 +60,11 @@ export function NewAppointmentDialog({
   const [open, setOpen] = useState(false);
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
+    defaultValues: {
+      patientId: '',
+      doctorId: '',
+      time: '',
+    },
   });
 
   function onSubmit(data: AppointmentFormValues) {
