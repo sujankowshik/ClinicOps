@@ -15,7 +15,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import type { Appointment } from '@/lib/types';
-import { eachDayOfInterval, format, subDays } from 'date-fns';
+import { eachDayOfInterval, format, subDays, parseISO } from 'date-fns';
 
 const chartConfig = {
   scheduled: {
@@ -36,7 +36,7 @@ export function AppointmentsChart({ appointments }: AppointmentsChartProps) {
     const formattedDay = format(day, 'yyyy-MM-dd');
     return {
       date: format(day, 'MMM d'),
-      scheduled: appointments.filter((a) => a.date === formattedDay).length,
+      scheduled: appointments.filter((a) => format(parseISO(a.date), 'yyyy-MM-dd') === formattedDay).length,
     };
   });
   
