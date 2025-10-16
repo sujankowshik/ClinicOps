@@ -23,47 +23,50 @@ export const SendEmailOutputSchema = z.object({
 });
 export type SendEmailOutput = z.infer<typeof SendEmailOutputSchema>;
 
-export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutput> {
-  const sendEmailFlow = ai.defineFlow(
-    {
-      name: 'sendEmailFlow',
-      inputSchema: SendEmailInputSchema,
-      outputSchema: SendEmailOutputSchema,
-    },
-    async (input) => {
-      
-      const { EMAIL_USER, EMAIL_APP_PASSWORD } = process.env;
 
-      if (!EMAIL_USER || !EMAIL_APP_PASSWORD) {
-        console.error('Email credentials are not set in environment variables.');
-        return { success: false };
-      }
+const sendEmailFlow = ai.defineFlow(
+  {
+    name: 'sendEmailFlow',
+    inputSchema: SendEmailInputSchema,
+    outputSchema: SendEmailOutputSchema,
+  },
+  async (input) => {
+    
+    const { EMAIL_USER, EMAIL_APP_PASSWORD } = process.env;
 
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: EMAIL_USER,
-          pass: EMAIL_APP_PASSWORD,
-        },
-      });
-
-      const mailOptions = {
-        from: EMAIL_USER,
-        to: input.to,
-        subject: input.subject,
-        text: input.body,
-      };
-
-      try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${input.to}`);
-        return { success: true };
-      } catch (error) {
-        console.error('Failed to send email:', error);
-        return { success: false };
-      }
+    if (!EMAIL_USER || !EMAIL_APP_PASSWORD) {
+      console.error('Email credentials are not set in environment variables.');
+      // Intentionally not throwing an error to avoid crashing the app if email is not configured.
+      // The UI should handle this case.
+      return { success: false };
     }
-  );
 
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_APP_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: input.to,
+      subject: input.subject,
+      text: input.body,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${input.to}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      return { success: false };
+    }
+  }
+);
+
+export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutput> {
   return await sendEmailFlow(input);
 }
