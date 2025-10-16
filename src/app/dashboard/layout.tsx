@@ -23,7 +23,7 @@ type DashboardContextType = {
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'status'>) => void;
   addVisit: (visit: Omit<Visit, 'id'>) => void;
-  getPatientVisits: (patientId: string) => Visit[];
+  getPatientVisits: (patientId: string) => Visit[] | undefined;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -54,9 +54,6 @@ export default function DashboardLayout({
 
   const inventoryQuery = useMemoFirebase(() => collection(firestore, 'inventory_items'), [firestore]);
   const { data: inventoryData } = useCollection<Omit<InventoryItem, 'status'>>(inventoryQuery);
-
-  const visitsQuery = useMemoFirebase(() => collection(firestore, 'visits'), [firestore]);
-  const { data: allVisits } = useCollection<Visit>(visitsQuery);
 
   const inventory = useMemo(() => {
     if (!inventoryData) return null;
@@ -120,7 +117,9 @@ export default function DashboardLayout({
   };
 
   const getPatientVisits = (patientId: string) => {
-    return allVisits?.filter(v => v.patientId === patientId) || [];
+    // This function is no longer responsible for fetching all visits.
+    // It's kept for context, but data is now fetched directly in the component.
+    return undefined;
   };
 
   const contextValue = {

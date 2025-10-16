@@ -25,19 +25,20 @@ import { useDashboard } from '../../layout';
 import { useEffect, useState } from 'react';
 import type { Visit } from '@/lib/types';
 import { VisitSummary } from '@/components/patients/visit-summary';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const { getPatientVisits, addVisit } = useDashboard();
-  const [visits, setVisits] = useState<Visit[] | null>(null);
-
+  const { addVisit } = useDashboard();
+  const firestore = useFirestore();
   const patient = patients.find((p) => p.id === params.id);
 
-  useEffect(() => {
-    if (patient) {
-      const patientVisits = getPatientVisits(patient.id);
-      setVisits(patientVisits);
-    }
-  }, [patient, getPatientVisits]);
+  const visitsQuery = useMemoFirebase(
+    () => (patient ? collection(firestore, `patients/${patient.id}/visits`) : null),
+    [firestore, patient]
+  );
+  const { data: visits, isLoading: visitsLoading } = useCollection<Visit>(visitsQuery);
+
 
   if (!patient) {
     notFound();
@@ -84,7 +85,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <CardTitle className="font-headline">Visit History</CardTitle>
           </CardHeader>
           <CardContent>
-            {!visits ? (
+            {visitsLoading ? (
                 <div className="flex justify-center items-center h-24">
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
@@ -98,7 +99,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visits.length > 0 ? (
+                {visits && visits.length > 0 ? (
                   visits.map((visit) => (
                   <TableRow key={visit.id}>
                     <TableCell>{format(parseISO(visit.date), 'MMM d, yyyy')}</TableCell>
