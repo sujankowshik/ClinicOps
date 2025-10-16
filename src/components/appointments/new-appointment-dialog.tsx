@@ -31,7 +31,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { Patient, Doctor } from '@/lib/types';
+import type { Patient, Doctor, Appointment } from '@/lib/types';
 import { Calendar as CalendarIcon, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -50,11 +50,13 @@ type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 interface NewAppointmentDialogProps {
   patients: Patient[];
   doctors: Doctor[];
+  onAddAppointment: (appointment: Omit<Appointment, 'id' | 'status'>) => void;
 }
 
 export function NewAppointmentDialog({
   patients,
   doctors,
+  onAddAppointment,
 }: NewAppointmentDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -68,7 +70,26 @@ export function NewAppointmentDialog({
   });
 
   function onSubmit(data: AppointmentFormValues) {
-    console.log(data);
+    const patient = patients.find(p => p.id === data.patientId);
+    const doctor = doctors.find(d => d.id === data.doctorId);
+
+    if (!patient || !doctor) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Invalid patient or doctor selected."
+        })
+        return;
+    }
+
+    onAddAppointment({
+        patientId: data.patientId,
+        patientName: patient.name,
+        doctorName: doctor.name,
+        date: format(data.date, 'yyyy-MM-dd'),
+        time: data.time,
+    });
+
     toast({
       title: 'Appointment Scheduled!',
       description: 'The new appointment has been added to the calendar.',
