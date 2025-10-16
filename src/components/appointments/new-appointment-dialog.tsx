@@ -42,7 +42,7 @@ const appointmentFormSchema = z.object({
   patientId: z.string().min(1, 'Patient is required.'),
   doctorId: z.string().min(1, 'Doctor is required.'),
   date: z.date({ required_error: 'A date is required.' }),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
+  time: z.string().min(1, 'Time is required.'),
 });
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
