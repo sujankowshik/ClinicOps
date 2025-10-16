@@ -14,6 +14,7 @@ import { collection, addDoc, doc, setDoc, updateDoc, increment } from 'firebase/
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -126,8 +127,6 @@ export default function DashboardLayout({
   };
 
   const getPatientVisits = (patientId: string) => {
-    // This function is no longer responsible for fetching all visits.
-    // It's kept for context, but data is now fetched directly in the component.
     return undefined;
   };
 
@@ -146,13 +145,15 @@ export default function DashboardLayout({
 
   return (
     <DashboardContext.Provider value={contextValue}>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
-          <main className="flex-grow p-4 lg:p-6">{children}</main>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col">
+            <Header />
+            <main className="flex-grow p-4 lg:p-6">{children}</main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </DashboardContext.Provider>
   );
 }
