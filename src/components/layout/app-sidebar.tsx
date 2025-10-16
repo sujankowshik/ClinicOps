@@ -23,7 +23,6 @@ import {
   User,
   HeartPulse,
   MessageSquareQuote,
-  Mic,
 } from 'lucide-react';
 import { Logo } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -40,7 +39,6 @@ const menuItems = [
   { href: '/dashboard/inventory', icon: Boxes, label: 'Inventory' },
   { href: '/dashboard/symptom-evaluator', icon: HeartPulse, label: 'Symptom Evaluator' },
   { href: '/dashboard/faq-and-triage', icon: MessageSquareQuote, label: 'FAQ & Triage' },
-  { href: '/dashboard/voice-triage', icon: Mic, label: 'Voice Triage' },
 ];
 
 export function AppSidebar() {
