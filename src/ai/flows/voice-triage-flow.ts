@@ -86,7 +86,7 @@ const voiceTriageFlow = ai.defineFlow(
   async ({ audioDataUri, age }) => {
     // 1. Transcribe the user's audio to text.
     const { text: symptoms } = await ai.generate({
-      model: 'googleai/gemini-2.5-pro-speech-preview',
+      model: 'googleai/gemini-pro-speech',
       prompt: [{ media: { url: audioDataUri } }],
     });
 
