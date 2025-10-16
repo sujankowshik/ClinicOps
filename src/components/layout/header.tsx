@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { capitalize } from 'lodash';
-import { Home, LogOut } from 'lucide-react';
+import { LogOut, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Logo } from '../icons';
@@ -39,14 +39,25 @@ export function Header() {
     .split(' ')
     .map((word) => capitalize(word))
     .join(' ');
+  
+  const isDashboardHome = pathname === '/dashboard';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
       <div className="flex items-center gap-2">
-        <Link href="/dashboard">
-          <Logo className="h-8 w-8 text-primary" />
-          <span className="sr-only">ClinicOps</span>
-        </Link>
+        {!isDashboardHome ? (
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/dashboard">
+              <ArrowLeft />
+              <span className="sr-only">Back to dashboard</span>
+            </Link>
+          </Button>
+        ) : (
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <Logo className="h-8 w-8 text-primary" />
+            <span className="sr-only">ClinicOps</span>
+          </Link>
+        )}
       </div>
 
       <div className="flex-1">
