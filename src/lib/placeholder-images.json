@@ -31,10 +31,10 @@
       "imageHint": "man portrait"
     },
     {
-      "id": "landing-hero",
-      "description": "Hero image for the landing page showing a modern clinic interior.",
-      "imageUrl": "https://picsum.photos/seed/hero/1920/1080",
-      "imageHint": "clinic interior"
+      "id": "landing-hero-night",
+      "description": "Hero image for the landing page showing a starry night sky over a forest.",
+      "imageUrl": "https://picsum.photos/seed/night/1920/1080",
+      "imageHint": "night sky forest"
     }
   ]
 }

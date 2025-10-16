@@ -6,29 +6,18 @@ import { Logo } from '@/components/icons';
 import { placeholderImages } from '@/lib/placeholder-images';
 
 export default function LandingPage() {
-  const heroImage = placeholderImages.find(p => p.id === 'landing-hero');
+  const heroImage = placeholderImages.find(p => p.id === 'landing-hero-night');
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-white/10 bg-background/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
+    <div className="relative flex min-h-screen flex-col bg-background">
+      <header className="absolute top-0 left-0 z-50 p-4 sm:p-6 lg:p-8">
         <Link href="/" className="flex items-center gap-2">
-          <Logo className="h-8 w-8 text-primary" />
-          <span className="font-headline text-xl font-semibold text-white">
-            ClinicOps
-          </span>
+          <Logo className="h-8 w-8 text-white" />
         </Link>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Sign In</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/signup">Sign Up</Link>
-          </Button>
-        </div>
       </header>
 
       <main className="flex-grow">
-        <section className="relative h-[calc(100vh-4rem)] w-full">
+        <section className="relative h-screen w-full">
           {heroImage && (
              <Image
               src={heroImage.imageUrl}
@@ -36,17 +25,18 @@ export default function LandingPage() {
               fill
               className="object-cover"
               data-ai-hint={heroImage.imageHint}
+              priority
             />
           )}
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
-            <h1 className="font-headline text-5xl font-bold md:text-7xl">
+            <h1 className="font-headline text-6xl font-bold md:text-8xl" style={{fontFamily: "'serif'"}}>
               ClinicOps
             </h1>
-            <p className="mt-4 text-lg text-white/80 md:text-xl">
+            <p className="mt-4 text-lg text-white/90 md:text-xl">
               Built for Those Who Serve.
             </p>
-            <Button size="lg" className="mt-8" asChild>
+            <Button size="lg" className="mt-8 bg-[#6A9983] hover:bg-[#5A8973] text-black rounded-full px-8" asChild>
               <Link href="/dashboard">Get Started</Link>
             </Button>
           </div>
