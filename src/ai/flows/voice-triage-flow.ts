@@ -9,9 +9,18 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { evaluateSymptoms, SymptomEvaluationInputSchema, SymptomEvaluationOutputSchema } from './symptom-evaluator';
+import { evaluateSymptoms } from './symptom-evaluator';
 import lamejs from 'lamejs';
 import wav from 'wav';
+
+// This schema was previously imported, but to comply with 'use server' restrictions,
+// it's now defined directly in this file.
+const SymptomEvaluationOutputSchema = z.object({
+  potentialDiagnoses: z.array(z.string()).describe('A list of potential diagnoses based on the provided information.'),
+  severityAssessment: z.string().describe('An assessment of the severity of the patient\'s condition (e.g., mild, moderate, severe).'),
+  recommendedDepartment: z.string().describe('The recommended medical department for further evaluation and treatment (e.g., Cardiology, Neurology, Emergency).'),
+  additionalRecommendations: z.string().optional().describe('Any additional recommendations or advice for the patient.'),
+});
 
 // Define the input schema for the voice triage flow, which includes the audio data URI and patient's age.
 const VoiceTriageInputSchema = z.object({
