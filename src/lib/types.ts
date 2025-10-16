@@ -11,15 +11,18 @@ export type Patient = {
 
 export type Visit = {
   id: string;
+  patientId: string;
   date: string;
   doctor: string;
   reason: string;
   notes: string;
+  summary?: string;
 };
 
 export type Doctor = {
   id: string;
   name: string;
+  email: string;
 };
 
 export type Appointment = {
@@ -38,6 +41,6 @@ export type InventoryItem = {
   stock: number;
   reorderLevel: number;
   supplier: string;
-  lastReorderDate: string;
+  lastReorderDate?: string; // Made optional as it might not exist for new items
   status: 'In Stock' | 'Low Stock' | 'Reorder Now';
 };

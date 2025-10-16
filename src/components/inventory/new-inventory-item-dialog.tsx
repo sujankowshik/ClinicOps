@@ -25,6 +25,7 @@ import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
+import type { InventoryItem } from '@/lib/types';
 
 const inventoryItemFormSchema = z.object({
   itemName: z.string().min(2, 'Item name must be at least 2 characters.'),
@@ -35,7 +36,11 @@ const inventoryItemFormSchema = z.object({
 
 type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
 
-export function NewInventoryItemDialog() {
+interface NewInventoryItemDialogProps {
+  onAddItem: (item: Omit<InventoryItem, 'id' | 'status'>) => void;
+}
+
+export function NewInventoryItemDialog({ onAddItem }: NewInventoryItemDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const form = useForm<InventoryItemFormValues>({
@@ -49,7 +54,7 @@ export function NewInventoryItemDialog() {
   });
 
   function onSubmit(data: InventoryItemFormValues) {
-    console.log(data);
+    onAddItem(data);
     toast({
       title: 'Item Added!',
       description: `${data.itemName} has been added to the inventory.`,

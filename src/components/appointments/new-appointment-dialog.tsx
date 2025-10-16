@@ -94,23 +94,27 @@ export function NewAppointmentDialog({
       description: 'The new appointment has been added to the calendar.',
     });
 
-    try {
-        await sendEmail({
-            to: `sujankowshik.xg.26@gmail.com`, // In a real app, you'd get the doctor's email
-            subject: 'New Appointment Scheduled',
-            body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
-        });
-        toast({
-            title: 'Notification Sent',
-            description: `An email has been sent to ${doctor.name}.`,
-        });
-    } catch(e) {
-        console.error("Failed to send email notification", e);
-        toast({
-            variant: "destructive",
-            title: "Email Failed",
-            description: "Could not send appointment notification."
-        })
+    if (doctor.email) {
+      try {
+          await sendEmail({
+              to: doctor.email,
+              subject: 'New Appointment Scheduled',
+              body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
+          });
+          toast({
+              title: 'Notification Sent',
+              description: `An email has been sent to ${doctor.name}.`,
+          });
+      } catch(e) {
+          console.error("Failed to send email notification", e);
+          toast({
+              variant: "destructive",
+              title: "Email Failed",
+              description: "Could not send appointment notification."
+          })
+      }
+    } else {
+        console.warn(`Doctor ${doctor.name} has no email address. Skipping notification.`);
     }
 
     setOpen(false);

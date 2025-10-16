@@ -1,3 +1,5 @@
+'use client';
+
 import { patients } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import {
@@ -17,11 +19,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Calendar, User, Stethoscope } from 'lucide-react';
+import { Calendar, Stethoscope, Loader2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { useDashboard } from '../../layout';
+import { useEffect, useState } from 'react';
+import type { Visit } from '@/lib/types';
+import { VisitSummary } from '@/components/patients/visit-summary';
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
+  const { getPatientVisits, addVisit } = useDashboard();
+  const [visits, setVisits] = useState<Visit[] | null>(null);
+
   const patient = patients.find((p) => p.id === params.id);
+
+  useEffect(() => {
+    if (patient) {
+      const patientVisits = getPatientVisits(patient.id);
+      setVisits(patientVisits);
+    }
+  }, [patient, getPatientVisits]);
 
   if (!patient) {
     notFound();
@@ -55,17 +71,24 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     {patient.conditions.map(condition => (
                         <Badge key={condition} variant="outline">{condition}</Badge>
                     ))}
+                     {patient.conditions.length === 0 && <p className="text-sm text-muted-foreground">No conditions recorded.</p>}
                 </div>
             </CardContent>
         </Card>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 space-y-6">
+        <VisitSummary patient={patient} onAddVisit={addVisit} />
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Visit History</CardTitle>
           </CardHeader>
           <CardContent>
+            {!visits ? (
+                <div className="flex justify-center items-center h-24">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -75,7 +98,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {patient.visits.map((visit) => (
+                {visits.length > 0 ? (
+                  visits.map((visit) => (
                   <TableRow key={visit.id}>
                     <TableCell>{format(parseISO(visit.date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>
@@ -86,9 +110,15 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     </TableCell>
                     <TableCell>{visit.reason}</TableCell>
                   </TableRow>
-                ))}
+                ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center h-24">No visit history.</TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
       </div>

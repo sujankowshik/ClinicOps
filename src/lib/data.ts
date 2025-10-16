@@ -10,8 +10,8 @@ export const patients: Patient[] = [
     registeredDate: '2022-08-15',
     conditions: ['Hypertension', 'Type 2 Diabetes'],
     visits: [
-      { id: 'v1', date: '2023-01-20', doctor: 'Dr. Evelyn Reed', reason: 'Annual Checkup', notes: 'Patient is stable.' },
-      { id: 'v2', date: '2023-07-22', doctor: 'Dr. Evelyn Reed', reason: 'Follow-up', notes: 'Blood pressure is well-controlled.' },
+      { id: 'v1', patientId: '1', date: '2023-01-20', doctor: 'Dr. Evelyn Reed', reason: 'Annual Checkup', notes: 'Patient is stable.' },
+      { id: 'v2', patientId: '1', date: '2023-07-22', doctor: 'Dr. Evelyn Reed', reason: 'Follow-up', notes: 'Blood pressure is well-controlled.' },
     ],
   },
   {
@@ -23,7 +23,7 @@ export const patients: Patient[] = [
     registeredDate: '2021-03-10',
     conditions: ['Asthma'],
     visits: [
-      { id: 'v3', date: '2023-05-10', doctor: 'Dr. Ben Carter', reason: 'Asthma flare-up', notes: 'Prescribed new inhaler.' },
+      { id: 'v3', patientId: '2', date: '2023-05-10', doctor: 'Dr. Ben Carter', reason: 'Asthma flare-up', notes: 'Prescribed new inhaler.' },
     ],
   },
   {
@@ -35,7 +35,7 @@ export const patients: Patient[] = [
     registeredDate: '2023-01-05',
     conditions: ['Eczema'],
     visits: [
-      { id: 'v4', date: '2023-02-15', doctor: 'Dr. Isla Martinez', reason: 'Skin rash', notes: 'Topical cream prescribed.' },
+      { id: 'v4', patientId: '3', date: '2023-02-15', doctor: 'Dr. Isla Martinez', reason: 'Skin rash', notes: 'Topical cream prescribed.' },
     ],
   },
   {
@@ -47,7 +47,7 @@ export const patients: Patient[] = [
     registeredDate: '2020-11-20',
     conditions: ['Osteoarthritis'],
     visits: [
-      { id: 'v5', date: '2023-09-01', doctor: 'Dr. Ben Carter', reason: 'Joint pain', notes: 'Physical therapy recommended.' },
+      { id: 'v5', patientId: '4', date: '2023-09-01', doctor: 'Dr. Ben Carter', reason: 'Joint pain', notes: 'Physical therapy recommended.' },
     ],
   },
   {
@@ -59,17 +59,18 @@ export const patients: Patient[] = [
     registeredDate: '2019-06-30',
     conditions: ['High Cholesterol'],
     visits: [
-      { id: 'v6', date: '2023-04-12', doctor: 'Dr. Evelyn Reed', reason: 'Lipid panel review', notes: 'Dietary changes discussed.' },
+      { id: 'v6', patientId: '5', date: '2023-04-12', doctor: 'Dr. Evelyn Reed', reason: 'Lipid panel review', notes: 'Dietary changes discussed.' },
     ],
   },
 ];
 
 export const doctors: Doctor[] = [
-  { id: '1', name: 'Dr. Evelyn Reed' },
-  { id: '2', name: 'Dr. Ben Carter' },
-  { id: '3', name: 'Dr. Isla Martinez' },
+  { id: '1', name: 'Dr. Evelyn Reed', email: 'evelyn.reed@clinic.com' },
+  { id: '2', name: 'Dr. Ben Carter', email: 'ben.carter@clinic.com' },
+  { id: '3', name: 'Dr. Isla Martinez', email: 'isla.martinez@clinic.com' },
 ];
 
+// This appointment data is now legacy. It will be replaced by Firestore.
 export const appointments: Appointment[] = [
   { id: '1', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], status: 'Upcoming' },
   { id: '2', patientId: '2', patientName: 'Olivia Smith', doctorName: 'Dr. Ben Carter', date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0], status: 'Upcoming' },
@@ -79,6 +80,7 @@ export const appointments: Appointment[] = [
   { id: '6', patientId: '1', patientName: 'Liam Johnson', doctorName: 'Dr. Evelyn Reed', date: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString().split('T')[0], status: 'Cancelled' },
 ];
 
+// This inventory data is now legacy. It will be replaced by Firestore.
 export const inventory: InventoryItem[] = [
     { id: 'inv1', itemName: 'Sterile Gauze Pads (Box of 100)', stock: 50, reorderLevel: 20, supplier: 'MediSupply Co.', lastReorderDate: '2023-10-01', status: 'In Stock' },
     { id: 'inv2', itemName: 'Ibuprofen (500mg, Bottle of 500)', stock: 15, reorderLevel: 10, supplier: 'PharmaDirect', lastReorderDate: '2023-09-15', status: 'Low Stock' },

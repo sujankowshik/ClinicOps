@@ -4,20 +4,26 @@ import { Header } from '@/components/layout/header';
 import {
   patients as initialPatients,
   doctors as initialDoctors,
-  appointments as initialAppointments,
 } from '@/lib/data';
-import type { Patient, Doctor, Appointment } from '@/lib/types';
+import type { Patient, Doctor, Appointment, InventoryItem, Visit } from '@/lib/types';
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { format } from 'date-fns';
 
 type DashboardContextType = {
   patients: Patient[];
   doctors: Doctor[];
-  appointments: Appointment[];
+  appointments: Appointment[] | null;
+  inventory: InventoryItem[] | null;
   addPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => void;
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
+  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'status'>) => void;
+  addVisit: (visit: Omit<Visit, 'id'>) => void;
+  getPatientVisits: (patientId: string) => Visit[];
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -38,9 +44,34 @@ export default function DashboardLayout({
 }) {
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [doctors] = useState<Doctor[]>(initialDoctors);
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
+
+  const appointmentsQuery = useMemoFirebase(() => collection(firestore, 'appointments'), [firestore]);
+  const { data: appointments } = useCollection<Appointment>(appointmentsQuery);
+
+  const inventoryQuery = useMemoFirebase(() => collection(firestore, 'inventory_items'), [firestore]);
+  const { data: inventoryData } = useCollection<Omit<InventoryItem, 'status'>>(inventoryQuery);
+
+  const visitsQuery = useMemoFirebase(() => collection(firestore, 'visits'), [firestore]);
+  const { data: allVisits } = useCollection<Visit>(visitsQuery);
+
+  const inventory = useMemo(() => {
+    if (!inventoryData) return null;
+    return inventoryData.map(item => {
+      let status: 'In Stock' | 'Low Stock' | 'Reorder Now';
+      if (item.stock <= 0) {
+        status = 'Reorder Now';
+      } else if (item.stock <= item.reorderLevel) {
+        status = 'Low Stock';
+      } else {
+        status = 'In Stock';
+      }
+      return { ...item, status };
+    });
+  }, [inventoryData]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -69,21 +100,39 @@ export default function DashboardLayout({
   };
   
   const addAppointment = (newAppointmentData: Omit<Appointment, 'id' | 'status' | 'time'>) => {
-    const newAppointment: Appointment = {
-      id: `app${appointments.length + 1}`,
-      ...newAppointmentData,
-      status: 'Upcoming',
-      time: 'All day',
-    };
-    setAppointments(prevAppointments => [newAppointment, ...prevAppointments]);
+    const appointmentsCollection = collection(firestore, 'appointments');
+    const appointmentWithStatus = {
+        ...newAppointmentData,
+        status: 'Upcoming' as const,
+        date: format(new Date(newAppointmentData.date), 'yyyy-MM-dd')
+    }
+    addDocumentNonBlocking(appointmentsCollection, appointmentWithStatus);
   }
+  
+  const addInventoryItem = (itemData: Omit<InventoryItem, 'id' | 'status'>) => {
+    const inventoryCollection = collection(firestore, 'inventory_items');
+    addDocumentNonBlocking(inventoryCollection, itemData);
+  }
+
+  const addVisit = (visitData: Omit<Visit, 'id'>) => {
+    const visitsCollection = collection(firestore, `patients/${visitData.patientId}/visits`);
+    addDocumentNonBlocking(visitsCollection, visitData);
+  };
+
+  const getPatientVisits = (patientId: string) => {
+    return allVisits?.filter(v => v.patientId === patientId) || [];
+  };
 
   const contextValue = {
     patients,
     doctors,
     appointments,
+    inventory,
     addPatient,
     addAppointment,
+    addInventoryItem,
+    addVisit,
+    getPatientVisits,
   };
 
   return (

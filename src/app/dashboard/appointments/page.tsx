@@ -10,12 +10,17 @@ import {
 } from '@/components/ui/tabs';
 import { useDashboard } from '../layout';
 import { isFuture, isPast, parseISO } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 
 export default function AppointmentsPage() {
   const { appointments, patients, doctors, addAppointment } = useDashboard();
 
   if (!appointments || !patients || !doctors) {
-    return <div>Loading...</div>;
+    return (
+        <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-12 w-12 animate-spin" />
+        </div>
+    );
   }
 
   const upcomingAppointments = appointments.filter((a) => isFuture(parseISO(a.date)) || a.date === new Date().toISOString().split('T')[0]);

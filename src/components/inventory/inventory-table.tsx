@@ -29,6 +29,7 @@ export function InventoryTable({ inventory }: InventoryTableProps) {
   };
 
   const getProgressColor = (stock: number, reorderLevel: number) => {
+    if (reorderLevel <= 0) return 'bg-primary'; // Avoid division by zero
     const percentage = (stock / (reorderLevel * 2)) * 100;
     if (percentage < 25) return 'bg-destructive';
     if (percentage < 50) return 'bg-yellow-500';

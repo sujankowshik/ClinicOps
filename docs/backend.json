@@ -44,6 +44,22 @@
         "dateOfBirth"
       ]
     },
+    "Visit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Visit",
+      "type": "object",
+      "description": "Represents a patient visit or encounter.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the visit." },
+        "patientId": { "type": "string", "description": "Reference to the patient." },
+        "date": { "type": "string", "format": "date-time", "description": "Date of the visit." },
+        "doctor": { "type": "string", "description": "Name of the attending physician." },
+        "reason": { "type": "string", "description": "The primary reason for the visit." },
+        "notes": { "type": "string", "description": "Clinical notes from the encounter." },
+        "summary": { "type": "string", "description": "AI-generated summary of the visit." }
+      },
+      "required": ["id", "patientId", "date", "doctor", "reason"]
+    },
     "Appointment": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Appointment",
@@ -187,6 +203,20 @@
           ]
         }
       },
+       {
+        "path": "/patients/{patientId}/visits/{visitId}",
+        "definition": {
+          "entityName": "Visit",
+          "schema": {
+            "$ref": "#/backend/entities/Visit"
+          },
+          "description": "Stores patient visit information. Path-based ownership.",
+          "params": [
+            { "name": "patientId", "description": "Unique identifier for the patient." },
+            { "name": "visitId", "description": "Unique identifier for the visit." }
+          ]
+        }
+      },
       {
         "path": "/appointments/{appointmentId}",
         "definition": {
@@ -236,6 +266,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to manage patient, physician, appointment, and inventory data for the Clinic Ops 2.0 application. It follows the principle of Authorization Independence by leveraging path-based ownership for user-specific data and avoiding `get()` calls in security rules. All security rules will rely solely on `request.auth.uid` and existence checks. Structural Segregation is used to organize data with similar access requirements into the same collections. \n\n*   Patients are stored under `/patients/{patientId}`.\n*   Physicians are stored under `/physicians/{physicianId}`.\n*   Appointments are stored under `/appointments/{appointmentId}`, with the `patientId` and `physicianId` stored in the document. This facilitates querying appointments by patient or physician.\n*   Inventory items are stored under `/inventory_items/{inventoryItemId}`.\n\nThe structure facilitates the required QAPs because all data is segregated by entity type and access is controlled through security rules based on `request.auth.uid`. List operations are secured based on these rules, ensuring that only authorized users can access the data."
+    "reasoning": "The Firestore structure is designed to manage patient, physician, appointment, and inventory data for the Clinic Ops 2.0 application. It follows the principle of Authorization Independence by leveraging path-based ownership for user-specific data and avoiding `get()` calls in security rules. All security rules will rely solely on `request.auth.uid` and existence checks. Structural Segregation is used to organize data with similar access requirements into the same collections. \n\n*   Patients are stored under `/patients/{patientId}`.\n*   Patient visits are stored in a subcollection under each patient: `/patients/{patientId}/visits/{visitId}`.\n*   Physicians are stored under `/physicians/{physicianId}`.\n*   Appointments are stored under `/appointments/{appointmentId}`, with the `patientId` and `physicianId` stored in the document. This facilitates querying appointments by patient or physician.\n*   Inventory items are stored under `/inventory_items/{inventoryItemId}`.\n\nThe structure facilitates the required QAPs because all data is segregated by entity type and access is controlled through security rules based on `request.auth.uid`. List operations are secured based on these rules, ensuring that only authorized users can access the data."
   }
 }
