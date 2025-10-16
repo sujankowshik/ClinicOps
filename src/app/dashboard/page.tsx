@@ -11,7 +11,7 @@ import {
   Calendar,
   Boxes,
   HeartPulse,
-  MessageSquareQuestion
+  MessageSquareQuote
 } from 'lucide-react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
@@ -77,7 +77,7 @@ export default function DashboardPage() {
       title: 'FAQ & Triage',
       description: 'Get instant answers and triage complex queries.',
       href: '/dashboard/faq-and-triage',
-      Icon: MessageSquareQuestion,
+      Icon: MessageSquareQuote,
     },
   ];
 
