@@ -36,9 +36,14 @@ export default function LandingPage() {
             <p className="mt-4 text-lg text-white/90 md:text-xl">
               Built for Those Who Serve.
             </p>
-            <Button size="lg" className="mt-8 bg-[#6A9983] hover:bg-[#5A8973] text-black rounded-full px-8" asChild>
-              <Link href="/dashboard">Get Started</Link>
-            </Button>
+            <div className="mt-8 flex gap-4">
+              <Button size="lg" className="bg-[#6A9983] hover:bg-[#5A8973] text-black rounded-full px-8" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+               <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 text-white rounded-full px-8 border-white" asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>

@@ -96,7 +96,7 @@ export function NewAppointmentDialog({
 
     try {
         await sendEmail({
-            to: `doctor-email@example.com`, // In a real app, you'd get the doctor's email
+            to: `sujankowshik.xg.26@gmail.com`, // In a real app, you'd get the doctor's email
             subject: 'New Appointment Scheduled',
             body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
         });
