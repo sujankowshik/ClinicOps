@@ -13,8 +13,6 @@ import { Loader2 } from 'lucide-react';
 import { collection, addDoc, doc, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
-import { AppSidebar } from '@/components/layout/app-sidebar';
-import { SidebarProvider } from '@/components/ui/sidebar';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -145,15 +143,10 @@ export default function DashboardLayout({
 
   return (
     <DashboardContext.Provider value={contextValue}>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <AppSidebar />
-          <div className="flex-1 flex flex-col">
-            <Header />
-            <main className="flex-grow p-4 lg:p-6">{children}</main>
-          </div>
-        </div>
-      </SidebarProvider>
+      <div className="flex min-h-screen w-full flex-col">
+        <Header />
+        <main className="flex-grow p-4 lg:p-6">{children}</main>
+      </div>
     </DashboardContext.Provider>
   );
 }
