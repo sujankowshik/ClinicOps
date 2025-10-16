@@ -73,7 +73,7 @@ export default function FaqAndTriagePage() {
   return (
     <Card className="h-[calc(100vh-10rem)] flex flex-col">
       <CardHeader>
-        <CardTitle className="font-headline">FAQ &amp; Triage Assistant</CardTitle>
+        <CardTitle className="font-headline">FAQ & Triage Assistant</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden">
         <ScrollArea className="h-full pr-4">
@@ -83,10 +83,10 @@ export default function FaqAndTriagePage() {
                 key={index}
                 className={cn(
                   'flex items-start gap-3',
-                  message.role === 'user' &amp;&amp; 'justify-end'
+                  message.role === 'user' && 'justify-end'
                 )}
               >
-                {message.role === 'assistant' &amp;&amp; (
+                {message.role === 'assistant' && (
                   <Avatar className="h-8 w-8">
                     <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
                   </Avatar>
@@ -100,21 +100,21 @@ export default function FaqAndTriagePage() {
                   )}
                 >
                   <p className="text-sm">{message.content}</p>
-                  {message.isComplex &amp;&amp; (
+                  {message.isComplex && (
                     <div className="mt-2 border-t border-border/50 pt-2">
                         <p className="text-xs font-semibold">This seems complex. Here's the next step:</p>
                         <p className="text-xs text-muted-foreground">{message.triageInstructions}</p>
                     </div>
                   )}
                 </div>
-                 {message.role === 'user' &amp;&amp; (
+                 {message.role === 'user' && (
                   <Avatar className="h-8 w-8">
                     <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
-            {loading &amp;&amp; (
+            {loading && (
                  <div className='flex items-start gap-3'>
                     <Avatar className="h-8 w-8">
                         <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
