@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { sendEmail } from '@/ai/flows/send-email-flow';
 
 const appointmentFormSchema = z.object({
   patientId: z.string().min(1, 'Patient is required.'),
@@ -66,7 +67,7 @@ export function NewAppointmentDialog({
     },
   });
 
-  function onSubmit(data: AppointmentFormValues) {
+  async function onSubmit(data: AppointmentFormValues) {
     const patient = patients.find(p => p.id === data.patientId);
     const doctor = doctors.find(d => d.id === data.doctorId);
 
@@ -79,17 +80,39 @@ export function NewAppointmentDialog({
         return;
     }
 
-    onAddAppointment({
+    const newAppointmentData = {
         patientId: data.patientId,
         patientName: patient.name,
         doctorName: doctor.name,
         date: format(data.date, 'yyyy-MM-dd'),
-    });
+    };
+
+    onAddAppointment(newAppointmentData);
 
     toast({
       title: 'Appointment Scheduled!',
       description: 'The new appointment has been added to the calendar.',
     });
+
+    try {
+        await sendEmail({
+            to: `doctor-email@example.com`, // In a real app, you'd get the doctor's email
+            subject: 'New Appointment Scheduled',
+            body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
+        });
+        toast({
+            title: 'Notification Sent',
+            description: `An email has been sent to ${doctor.name}.`,
+        });
+    } catch(e) {
+        console.error("Failed to send email notification", e);
+        toast({
+            variant: "destructive",
+            title: "Email Failed",
+            description: "Could not send appointment notification."
+        })
+    }
+
     setOpen(false);
     form.reset();
   }

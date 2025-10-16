@@ -59,8 +59,16 @@ export default function DashboardLayout({
     setAppointments(prevAppointments => [newAppointment, ...prevAppointments]);
   }
 
+  const contextValue = {
+    patients,
+    doctors,
+    appointments,
+    addPatient,
+    addAppointment,
+  };
+
   return (
-    <DashboardContext.Provider value={{ patients, doctors, appointments, addPatient, addAppointment }}>
+    <DashboardContext.Provider value={contextValue}>
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-grow p-4 lg:p-6">{children}</main>
