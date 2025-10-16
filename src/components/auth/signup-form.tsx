@@ -37,7 +37,6 @@ const formSchema = z
 type UserFormValue = z.infer<typeof formSchema>;
 
 export function SignupForm() {
-  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
   const auth = useAuth();
@@ -67,7 +66,8 @@ export function SignupForm() {
         title: 'Account Created',
         description: "You're being redirected to the dashboard.",
       });
-      router.push('/dashboard');
+      // Use window.location.href for a full page reload to ensure auth state is updated.
+      window.location.href = '/dashboard';
 
     } catch (error: any) {
        let description = 'An unexpected error occurred. Please try again.';
@@ -81,8 +81,7 @@ export function SignupForm() {
         title: 'Signup Failed',
         description,
       });
-    } finally {
-      setLoading(false);
+       setLoading(false);
     }
   };
 

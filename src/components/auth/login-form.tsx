@@ -31,7 +31,6 @@ const formSchema = z.object({
 type UserFormValue = z.infer<typeof formSchema>;
 
 export function LoginForm() {
-  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
   const auth = useAuth();
@@ -52,7 +51,8 @@ export function LoginForm() {
         title: 'Login Successful',
         description: "Welcome back! You're being redirected.",
       });
-      router.push('/dashboard');
+      // Use window.location.href for a full page reload to ensure auth state is updated.
+      window.location.href = '/dashboard';
     } catch (error: any) {
       let description = 'An unexpected error occurred. Please try again.';
       switch (error.code) {
@@ -73,7 +73,6 @@ export function LoginForm() {
         title: 'Login Failed',
         description,
       });
-    } finally {
       setLoading(false);
     }
   };
