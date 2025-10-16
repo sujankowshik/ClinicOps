@@ -16,27 +16,8 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { appointments } from '@/lib/data';
+import type { Appointment } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
-
-const monthlyData: { [key: string]: { completed: number; cancelled: number } } = {};
-
-appointments.forEach((appt) => {
-  const month = format(parseISO(appt.date), 'MMM yyyy');
-  if (!monthlyData[month]) {
-    monthlyData[month] = { completed: 0, cancelled: 0 };
-  }
-  if (appt.status === 'Completed') {
-    monthlyData[month].completed++;
-  } else if (appt.status === 'Cancelled') {
-    monthlyData[month].cancelled++;
-  }
-});
-
-const chartData = Object.keys(monthlyData).map(key => ({
-  month: key,
-  ...monthlyData[key]
-})).slice(-6); // show last 6 months
 
 const chartConfig = {
   completed: {
@@ -49,7 +30,31 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function AttendanceChart() {
+interface AttendanceChartProps {
+  appointments: Appointment[];
+}
+
+export function AttendanceChart({ appointments }: AttendanceChartProps) {
+  const monthlyData: { [key: string]: { completed: number; cancelled: number } } = {};
+
+  appointments.forEach((appt) => {
+    const month = format(parseISO(appt.date), 'MMM yyyy');
+    if (!monthlyData[month]) {
+      monthlyData[month] = { completed: 0, cancelled: 0 };
+    }
+    if (appt.status === 'Completed') {
+      monthlyData[month].completed++;
+    } else if (appt.status === 'Cancelled') {
+      monthlyData[month].cancelled++;
+    }
+  });
+
+  const chartData = Object.keys(monthlyData).map(key => ({
+    month: key,
+    ...monthlyData[key]
+  })).slice(-6); // show last 6 months
+
+
   return (
     <Card>
       <CardHeader>

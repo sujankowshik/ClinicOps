@@ -14,19 +14,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { appointments } from '@/lib/data';
+import type { Appointment } from '@/lib/types';
 import { eachDayOfInterval, format, subDays } from 'date-fns';
-
-const chartData = eachDayOfInterval({
-  start: subDays(new Date(), 6),
-  end: new Date(),
-}).map((day) => {
-  const formattedDay = format(day, 'yyyy-MM-dd');
-  return {
-    date: format(day, 'MMM d'),
-    scheduled: appointments.filter((a) => a.date === formattedDay).length,
-  };
-});
 
 const chartConfig = {
   scheduled: {
@@ -35,7 +24,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function AppointmentsChart() {
+interface AppointmentsChartProps {
+  appointments: Appointment[];
+}
+
+export function AppointmentsChart({ appointments }: AppointmentsChartProps) {
+  const chartData = eachDayOfInterval({
+    start: subDays(new Date(), 6),
+    end: new Date(),
+  }).map((day) => {
+    const formattedDay = format(day, 'yyyy-MM-dd');
+    return {
+      date: format(day, 'MMM d'),
+      scheduled: appointments.filter((a) => a.date === formattedDay).length,
+    };
+  });
+  
   return (
     <Card>
       <CardHeader>

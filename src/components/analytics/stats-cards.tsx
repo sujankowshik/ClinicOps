@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -5,10 +7,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { BarChart, Users, CalendarCheck, PackageX } from 'lucide-react';
-import { appointments, patients, inventory } from '@/lib/data';
+import { inventory } from '@/lib/data';
+import type { Appointment, Patient } from '@/lib/types';
 import { format } from 'date-fns';
 
-export function StatsCards() {
+interface StatsCardsProps {
+  appointments: Appointment[];
+  patients: Patient[];
+}
+
+export function StatsCards({ appointments, patients }: StatsCardsProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const todaysAppointments = appointments.filter(
     (a) => a.date === today && a.status === 'Upcoming'
