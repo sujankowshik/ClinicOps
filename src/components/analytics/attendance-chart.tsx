@@ -20,13 +20,9 @@ import type { Appointment } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 
 const chartConfig = {
-  completed: {
-    label: 'Completed',
+  appointments: {
+    label: 'Appointments',
     color: 'hsl(var(--chart-1))',
-  },
-  cancelled: {
-    label: 'Cancelled',
-    color: 'hsl(var(--destructive))',
   },
 } satisfies ChartConfig;
 
@@ -35,18 +31,14 @@ interface AttendanceChartProps {
 }
 
 export function AttendanceChart({ appointments }: AttendanceChartProps) {
-  const monthlyData: { [key: string]: { completed: number; cancelled: number } } = {};
+  const monthlyData: { [key: string]: { appointments: number } } = {};
 
   appointments.forEach((appt) => {
     const month = format(parseISO(appt.date), 'MMM yyyy');
     if (!monthlyData[month]) {
-      monthlyData[month] = { completed: 0, cancelled: 0 };
+      monthlyData[month] = { appointments: 0 };
     }
-    if (appt.status === 'Completed') {
-      monthlyData[month].completed++;
-    } else if (appt.status === 'Cancelled') {
-      monthlyData[month].cancelled++;
-    }
+    monthlyData[month].appointments++;
   });
 
   const chartData = Object.keys(monthlyData).map(key => ({
@@ -58,9 +50,9 @@ export function AttendanceChart({ appointments }: AttendanceChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Patient Attendance</CardTitle>
+        <CardTitle className="font-headline">Appointments Over Time</CardTitle>
         <CardDescription>
-          Completed vs. Cancelled appointments over time.
+          Total number of scheduled appointments per month.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,15 +72,8 @@ export function AttendanceChart({ appointments }: AttendanceChartProps) {
             <ChartLegend content={<ChartLegendContent />} />
             <Line
               type="monotone"
-              dataKey="completed"
-              stroke="var(--color-completed)"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="cancelled"
-              stroke="var(--color-cancelled)"
+              dataKey="appointments"
+              stroke="var(--color-appointments)"
               strokeWidth={2}
               dot={false}
             />
