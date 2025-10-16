@@ -36,7 +36,7 @@ export function AppointmentsChart({ appointments }: AppointmentsChartProps) {
     const formattedDay = format(day, 'yyyy-MM-dd');
     return {
       date: format(day, 'MMM d'),
-      scheduled: appointments.filter((a) => format(parseISO(a.date), 'yyyy-MM-dd') === formattedDay).length,
+      scheduled: appointments.filter((a) => a.date === formattedDay).length,
     };
   });
   

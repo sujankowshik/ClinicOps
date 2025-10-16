@@ -9,7 +9,7 @@ import {
 import { BarChart, Users, CalendarCheck, PackageX } from 'lucide-react';
 import { inventory } from '@/lib/data';
 import type { Appointment, Patient } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface StatsCardsProps {
   appointments: Appointment[];
