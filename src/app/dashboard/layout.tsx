@@ -7,7 +7,10 @@ import {
   appointments as initialAppointments,
 } from '@/lib/data';
 import type { Patient, Doctor, Appointment } from '@/lib/types';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -36,6 +39,22 @@ export default function DashboardLayout({
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [doctors] = useState<Doctor[]>(initialDoctors);
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
+    );
+  }
 
   const addPatient = (newPatientData: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => {
     const newPatient: Patient = {

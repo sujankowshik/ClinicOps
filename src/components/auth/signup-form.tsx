@@ -19,6 +19,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const formSchema = z
   .object({
@@ -38,6 +40,7 @@ export function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
+  const auth = useAuth();
 
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
@@ -51,17 +54,36 @@ export function SignupForm() {
 
   const onSubmit = async (data: UserFormValue) => {
     setLoading(true);
-    // Simulate Firebase signup
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
 
-    // In a real app, you'd handle success/error from Firebase
-    toast({
-      title: 'Account Created',
-      description: "You're being redirected to the dashboard.",
-    });
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+            displayName: data.name
+        });
+      }
+      
+      toast({
+        title: 'Account Created',
+        description: "You're being redirected to the dashboard.",
+      });
+      router.push('/dashboard');
 
-    router.push('/dashboard');
-    setLoading(false);
+    } catch (error: any) {
+       let description = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/email-already-in-use') {
+        description = 'This email is already in use. Please try another one.';
+      } else {
+        console.error(error);
+      }
+       toast({
+        variant: 'destructive',
+        title: 'Signup Failed',
+        description,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -32,6 +34,7 @@ export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
+  const auth = useAuth();
 
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
@@ -43,26 +46,36 @@ export function LoginForm() {
 
   const onSubmit = async (data: UserFormValue) => {
     setLoading(true);
-    // Simulate Firebase login
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // In a real app, you'd handle success/error from Firebase
-    // For now, we'll always succeed
-    if (data.email === 'admin@clinic.com' && data.password === 'password') {
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       toast({
         title: 'Login Successful',
         description: "Welcome back! You're being redirected.",
       });
       router.push('/dashboard');
-    } else {
-       toast({
+    } catch (error: any) {
+      let description = 'An unexpected error occurred. Please try again.';
+      switch (error.code) {
+        case 'auth/user-not-found':
+          description = 'No account found with this email address.';
+          break;
+        case 'auth/wrong-password':
+          description = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/invalid-credential':
+          description = 'Invalid credentials. Please check your email and password.';
+          break;
+        default:
+          console.error(error);
+      }
+      toast({
         variant: 'destructive',
-        title: 'Invalid Credentials',
-        description: 'Please check your email and password. (Hint: admin@clinic.com / password)',
+        title: 'Login Failed',
+        description,
       });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

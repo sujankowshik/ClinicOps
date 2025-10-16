@@ -1,14 +1,24 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { capitalize } from 'lodash';
-import { Home } from 'lucide-react';
+import { Home, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Logo } from '../icons';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export function Header() {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
 
   const isDashboardHome = pathname === '/dashboard';
 
@@ -41,14 +51,20 @@ export function Header() {
         )}
       </div>
 
-      {!isDashboardHome && (
-        <Button variant="ghost" asChild>
-            <Link href="/dashboard" className="flex items-center gap-2">
-                <Home className="h-4 w-4" />
-                <span className="hidden sm:inline">Dashboard</span>
-            </Link>
+      <div className="flex items-center gap-2">
+        {!isDashboardHome && (
+          <Button variant="ghost" asChild>
+              <Link href="/dashboard" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+          </Button>
+        )}
+         <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
         </Button>
-      )}
+      </div>
     </header>
   );
 }

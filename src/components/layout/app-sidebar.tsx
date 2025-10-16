@@ -27,6 +27,8 @@ import {
 import { Logo } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useRouter } from 'next/navigation';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 
 const menuItems = [
@@ -42,9 +44,11 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const auth = useAuth();
+  const { user } = useUser();
 
-  const handleLogout = () => {
-    // In a real app, this would clear the user's session/token
+  const handleLogout = async () => {
+    await signOut(auth);
     router.push('/login');
   };
 
@@ -78,16 +82,18 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
-        <div className="flex items-center gap-3">
-          <Avatar className="size-8">
-            <AvatarImage src="https://picsum.photos/seed/admin/100/100" alt="Admin" data-ai-hint="person portrait" />
-            <AvatarFallback>AD</AvatarFallback>
-          </Avatar>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <p className="text-sm font-medium text-sidebar-foreground">Admin</p>
-            <p className="text-xs text-sidebar-foreground/70">admin@clinic.com</p>
+         {user && (
+          <div className="flex items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarImage src={user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`} alt={user.displayName || 'User'} data-ai-hint="person portrait" />
+              <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="group-data-[collapsible=icon]:hidden">
+              <p className="text-sm font-medium text-sidebar-foreground">{user.displayName || 'User'}</p>
+              <p className="text-xs text-sidebar-foreground/70">{user.email}</p>
+            </div>
           </div>
-        </div>
+        )}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} tooltip="Log Out">
