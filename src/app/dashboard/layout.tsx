@@ -10,8 +10,8 @@ import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, addDoc, doc, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
 
 type DashboardContextType = {
@@ -22,6 +22,7 @@ type DashboardContextType = {
   addPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => void;
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'status'>) => void;
+  updateInventoryItemStock: (itemId: string, quantityUsed: number) => void;
   addVisit: (visit: Omit<Visit, 'id'>) => void;
   getPatientVisits: (patientId: string) => Visit[] | undefined;
 };
@@ -111,6 +112,13 @@ export default function DashboardLayout({
     addDocumentNonBlocking(inventoryCollection, itemData);
   }
 
+  const updateInventoryItemStock = (itemId: string, quantityUsed: number) => {
+    const itemDocRef = doc(firestore, `inventory_items/${itemId}`);
+    updateDocumentNonBlocking(itemDocRef, {
+      stock: increment(-quantityUsed)
+    });
+  }
+
   const addVisit = (visitData: Omit<Visit, 'id'>) => {
     const visitsCollection = collection(firestore, `patients/${visitData.patientId}/visits`);
     addDocumentNonBlocking(visitsCollection, visitData);
@@ -130,6 +138,7 @@ export default function DashboardLayout({
     addPatient,
     addAppointment,
     addInventoryItem,
+    updateInventoryItemStock,
     addVisit,
     getPatientVisits,
   };

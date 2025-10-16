@@ -6,9 +6,11 @@ import { InventoryTable } from '@/components/inventory/inventory-table';
 import { NewInventoryItemDialog } from '@/components/inventory/new-inventory-item-dialog';
 import { useDashboard } from '../layout';
 import { Loader2 } from 'lucide-react';
+import { LogUsageDialog } from '@/components/inventory/log-usage-dialog';
+import { Button } from '@/components/ui/button';
 
 export default function InventoryPage() {
-  const { inventory, addInventoryItem } = useDashboard();
+  const { inventory, addInventoryItem, updateInventoryItemStock } = useDashboard();
 
   return (
     <div className="space-y-6">
@@ -16,7 +18,10 @@ export default function InventoryPage() {
           <h1 className="font-headline text-3xl font-bold tracking-tight">
             Inventory Management
           </h1>
-          <NewInventoryItemDialog onAddItem={addInventoryItem} />
+          <div className="flex gap-2">
+            {inventory && <LogUsageDialog inventory={inventory} onUpdateStock={updateInventoryItemStock} />}
+            <NewInventoryItemDialog onAddItem={addInventoryItem} />
+          </div>
         </div>
         
       <div className="grid gap-6 md:grid-cols-3">
