@@ -1,3 +1,4 @@
+
 import type { Patient, Doctor, Appointment, InventoryItem } from './types';
 
 export const patients: Patient[] = [
@@ -62,6 +63,66 @@ export const patients: Patient[] = [
       { id: 'v6', patientId: '5', date: '2023-04-12', doctor: 'Dr. Evelyn Reed', reason: 'Lipid panel review', notes: 'Dietary changes discussed.' },
     ],
   },
+  {
+    id: '6',
+    name: 'Ava Garcia',
+    age: 28,
+    gender: 'Female',
+    avatarUrl: 'https://picsum.photos/seed/patient6/100/100',
+    registeredDate: '2022-11-01',
+    conditions: ['Migraines'],
+    visits: [
+        { id: 'v7', patientId: '6', date: '2023-03-05', doctor: 'Dr. Isla Martinez', reason: 'Headache evaluation', notes: 'Started on new preventive medication.' }
+    ],
+  },
+  {
+    id: '7',
+    name: 'James Miller',
+    age: 72,
+    gender: 'Male',
+    avatarUrl: 'https://picsum.photos/seed/patient7/100/100',
+    registeredDate: '2018-02-19',
+    conditions: ['Coronary Artery Disease', 'Gout'],
+    visits: [
+        { id: 'v8', patientId: '7', date: '2023-08-11', doctor: 'Dr. Evelyn Reed', reason: 'Chest pain follow-up', notes: 'ECG normal. Continue medication.' }
+    ],
+  },
+  {
+    id: '8',
+    name: 'Sophia Davis',
+    age: 19,
+    gender: 'Female',
+    avatarUrl: 'https://picsum.photos/seed/patient8/100/100',
+    registeredDate: '2023-04-10',
+    conditions: ['Anemia'],
+    visits: [
+        { id: 'v9', patientId: '8', date: '2023-06-21', doctor: 'Dr. Ben Carter', reason: 'Fatigue and weakness', notes: 'Iron supplements prescribed.' }
+    ],
+  },
+  {
+    id: '9',
+    name: 'Logan Rodriguez',
+    age: 35,
+    gender: 'Male',
+    avatarUrl: 'https://picsum.photos/seed/patient9/100/100',
+    registeredDate: '2021-09-01',
+    conditions: [],
+    visits: [
+        { id: 'v10', patientId: '9', date: '2023-10-15', doctor: 'Dr. Isla Martinez', reason: 'Annual Physical', notes: 'All clear.' }
+    ],
+  },
+  {
+    id: '10',
+    name: 'Isabella Wilson',
+    age: 5,
+    gender: 'Female',
+    avatarUrl: 'https://picsum.photos/seed/patient10/100/100',
+    registeredDate: '2023-07-20',
+    conditions: ['Allergies'],
+    visits: [
+        { id: 'v11', patientId: '10', date: '2023-09-05', doctor: 'Dr. Ben Carter', reason: 'Allergy testing', notes: 'Allergic to pollen and dust mites.' }
+    ],
+  }
 ];
 
 export const doctors: Doctor[] = [
