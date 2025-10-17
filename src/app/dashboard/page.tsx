@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -12,6 +13,7 @@ import {
   Boxes,
   HeartPulse,
   MessageSquareQuote,
+  Mic,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
@@ -74,8 +76,8 @@ export default function DashboardPage() {
       Icon: HeartPulse,
     },
     {
-      title: 'FAQ & Triage',
-      description: 'Get instant answers and triage complex queries.',
+      title: 'CareBot',
+      description: 'AI assistant for FAQs and voice-based triage.',
       href: '/dashboard/faq-and-triage',
       Icon: MessageSquareQuote,
     },
