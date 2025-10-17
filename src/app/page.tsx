@@ -37,10 +37,10 @@ export default function LandingPage() {
               Built for Those Who Serve.
             </p>
             <div className="mt-8 flex gap-4">
-              <Button size="lg" className="bg-[#6A9983] hover:bg-[#5A8973] text-black rounded-full px-8" asChild>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 transition-transform duration-300 hover:scale-105" asChild>
                 <Link href="/login">Login</Link>
               </Button>
-               <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 text-white rounded-full px-8 border-white" asChild>
+               <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 text-white rounded-full px-8 border-white transition-transform duration-300 hover:scale-105" asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
             </div>
