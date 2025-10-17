@@ -1,7 +1,7 @@
 'use client';
 
 import { patients } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -22,14 +22,13 @@ import {
 import { Calendar, Stethoscope, Loader2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useDashboard } from '../../layout';
-import { useEffect, useState } from 'react';
 import type { Visit } from '@/lib/types';
 import { VisitSummary } from '@/components/patients/visit-summary';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function PatientDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const { addVisit } = useDashboard();
   const firestore = useFirestore();
   const patient = patients.find((p) => p.id === id);
