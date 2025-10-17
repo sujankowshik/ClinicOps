@@ -51,6 +51,10 @@ export function LogUsageDialog({ inventory, onUpdateStock }: LogUsageDialogProps
   const [open, setOpen] = useState(false);
   const form = useForm<LogUsageFormValues>({
     resolver: zodResolver(logUsageFormSchema),
+    defaultValues: {
+      itemId: '',
+      quantityUsed: 0,
+    },
   });
 
   function onSubmit(data: LogUsageFormValues) {
