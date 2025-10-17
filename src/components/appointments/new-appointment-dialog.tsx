@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,7 +40,7 @@ import { useState } from 'react';
 import { sendEmail } from '@/ai/flows/send-email-flow';
 
 const appointmentFormSchema = z.object({
-  patientId: z.string().min(1, 'Patient is required.'),
+  patientName: z.string().min(2, 'Patient name is required.'),
   doctorId: z.string().min(1, 'Doctor is required.'),
   date: z.date({ required_error: 'A date is required.' }),
 });
@@ -62,27 +63,27 @@ export function NewAppointmentDialog({
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
-      patientId: '',
+      patientName: '',
       doctorId: '',
     },
   });
 
   async function onSubmit(data: AppointmentFormValues) {
-    const patient = patients.find(p => p.id === data.patientId);
     const doctor = doctors.find(d => d.id === data.doctorId);
 
-    if (!patient || !doctor) {
+    if (!doctor) {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Invalid patient or doctor selected."
+            description: "Invalid doctor selected."
         })
         return;
     }
 
     const newAppointmentData = {
-        patientId: data.patientId,
-        patientName: patient.name,
+        // A patientId would be looked up in a real app
+        patientId: `new-${Date.now()}`,
+        patientName: data.patientName,
         doctorName: doctor.name,
         date: format(data.date, 'yyyy-MM-dd'),
     };
@@ -99,7 +100,7 @@ export function NewAppointmentDialog({
           await sendEmail({
               to: 'sujankowshik.xg.26@gmail.com',
               subject: 'New Appointment Scheduled',
-              body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
+              body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${data.patientName} on ${format(data.date, 'PPP')}.`,
           });
           toast({
               title: 'Notification Sent',
@@ -133,31 +134,20 @@ export function NewAppointmentDialog({
         <DialogHeader>
           <DialogTitle className="font-headline">Schedule New Appointment</DialogTitle>
           <DialogDescription>
-            Select a patient, doctor, and date for the new appointment.
+            Enter patient's name, and select a doctor and date for the new appointment.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
-              name="patientId"
+              name="patientName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Patient</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a patient" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {patients.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Patient Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter patient's full name" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
