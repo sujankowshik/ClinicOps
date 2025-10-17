@@ -55,7 +55,7 @@ export function Header() {
         ) : (
           <Link href="/dashboard" className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <span className="sr-only">ClinicOps</span>
+            <span className="font-headline text-xl font-bold text-foreground">ClinicOps</span>
           </Link>
         )}
       </div>

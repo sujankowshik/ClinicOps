@@ -10,9 +10,10 @@ export default function LandingPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
-      <header className="absolute top-0 left-0 z-50 p-4 sm:p-6 lg:p-8">
+      <header className="absolute top-0 left-0 z-50 flex items-center gap-2 p-4 sm:p-6 lg:p-8">
         <Link href="/" className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-white" />
+          <span className="font-headline text-xl font-bold text-white">ClinicOps</span>
         </Link>
       </header>
 
@@ -28,9 +29,9 @@ export default function LandingPage() {
               priority
             />
           )}
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/60" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
-            <h1 className="font-headline text-6xl font-bold md:text-8xl" style={{fontFamily: "'serif'"}}>
+            <h1 className="font-headline text-6xl font-bold md:text-8xl">
               ClinicOps
             </h1>
             <p className="mt-4 text-lg text-white/90 md:text-xl">

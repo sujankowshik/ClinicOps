@@ -87,7 +87,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
-          Welcome to Clinic Ops 2.0
+          Welcome to ClinicOps
         </h1>
         <p className="text-muted-foreground">
           Your central hub for managing clinic operations efficiently.
