@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, ComponentType } from 'react';
@@ -151,7 +150,7 @@ export default function CareBotPage() {
         try {
             const { text } = await transcribeAudio({ audioDataUri: base64Audio });
             if (text) {
-                await handleAiResponse(text);
+                form.setValue('query', text);
             } else {
                 toast({ variant: 'destructive', title: 'Transcription Failed', description: 'Could not understand audio. Please try again.' });
             }
@@ -267,7 +266,7 @@ export default function CareBotPage() {
               render={({ field }) => (
                 <FormItem className="flex-grow">
                   <FormControl>
-                    <Input placeholder={isRecording ? 'Recording...' : "Ask a question..."} {...field} disabled={loading || isRecording} />
+                    <Input placeholder={isRecording ? 'Recording...' : "Ask a question or use the mic..."} {...field} disabled={loading || isRecording} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -291,5 +290,3 @@ export default function CareBotPage() {
     </Card>
   );
 }
-
-    

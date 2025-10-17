@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 // Zod schema for the input: audio data URI.
 const TranscribeAudioInputSchema = z.object({
-  audioDataUri: z.string().describe("A base64 encoded audio blob as a data URI. Expected format: 'data:audio/wav;base64,<encoded_data>'."),
+  audioDataUri: z.string().describe("A base64 encoded audio blob as a data URI. Expected format: 'data:audio/webm;base64,<encoded_data>'."),
 });
 export type TranscribeAudioInput = z.infer<typeof TranscribeAudioInputSchema>;
 
@@ -39,7 +39,7 @@ const transcribeAudioFlow = ai.defineFlow(
     // Transcribe the user's audio to text.
     const { text } = await ai.generate({
       model: 'googleai/gemini-1.5-flash-latest',
-      prompt: [{ media: { url: audioDataUri } }],
+      prompt: [{ text: "Transcribe the following audio:"}, { media: { url: audioDataUri } }],
     });
 
     if (text === undefined) {
