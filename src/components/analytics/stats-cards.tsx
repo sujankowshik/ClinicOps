@@ -7,16 +7,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { BarChart, Users, CalendarCheck, PackageX } from 'lucide-react';
-import { inventory } from '@/lib/data';
-import type { Appointment, Patient } from '@/lib/types';
-import { format, parseISO } from 'date-fns';
+import type { Appointment, Patient, InventoryItem } from '@/lib/types';
+import { format } from 'date-fns';
 
 interface StatsCardsProps {
   appointments: Appointment[];
   patients: Patient[];
+  inventory: InventoryItem[];
 }
 
-export function StatsCards({ appointments, patients }: StatsCardsProps) {
+export function StatsCards({ appointments, patients, inventory }: StatsCardsProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const todaysAppointments = appointments.filter(
     (a) => a.date === today && a.status === 'Upcoming'
