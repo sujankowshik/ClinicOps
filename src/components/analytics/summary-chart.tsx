@@ -67,9 +67,6 @@ export function SummaryChart({ appointments, inventory }: SummaryChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Operational Summary</CardTitle>
-        <CardDescription>
-          A quick overview of key metrics for today.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[200px] w-full">
