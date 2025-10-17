@@ -77,9 +77,15 @@ export default function DashboardPage() {
     },
     {
       title: 'CareBot',
-      description: 'AI assistant for FAQs and voice-based triage.',
+      description: 'AI assistant for FAQs and triaging queries.',
       href: '/dashboard/faq-and-triage',
       Icon: MessageSquareQuote,
+    },
+     {
+      title: 'Voice Triage',
+      description: 'Describe symptoms with your voice and get AI analysis.',
+      href: '/dashboard/voice-triage',
+      Icon: Mic,
     },
   ];
 

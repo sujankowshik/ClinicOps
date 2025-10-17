@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -15,7 +16,6 @@ export default function VoiceTriagePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [age, setAge] = useState<number>(30);
   const [result, setResult] = useState<VoiceTriageOutput | null>(null);
-  const [transcribedText, setTranscribedText] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -23,18 +23,19 @@ export default function VoiceTriagePage() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
       mediaRecorderRef.current.onstop = handleRecordingStop;
       mediaRecorderRef.current.start();
       setIsRecording(true);
       setResult(null);
-      setTranscribedText(null);
     } catch (err) {
       console.error('Error accessing microphone:', err);
-      alert('Could not access microphone. Please ensure permissions are granted.');
+      alert('Could not access microphone. Please ensure permissions are granted and you are using a supported browser (Chrome, Firefox).');
     }
   };
 
@@ -47,7 +48,9 @@ export default function VoiceTriagePage() {
 
   const handleRecordingStop = async () => {
     setIsLoading(true);
-    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+    audioChunksRef.current = []; // Clear chunks for next recording
+    
     const reader = new FileReader();
     reader.readAsDataURL(audioBlob);
     reader.onloadend = async () => {
@@ -60,7 +63,6 @@ export default function VoiceTriagePage() {
         alert('An error occurred during triage. Please try again.');
       } finally {
         setIsLoading(false);
-        audioChunksRef.current = [];
       }
     };
   };
@@ -72,7 +74,6 @@ export default function VoiceTriagePage() {
       } else {
         audioRef.current.play();
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -105,6 +106,7 @@ export default function VoiceTriagePage() {
               size="icon"
               className="h-20 w-20 rounded-full"
               disabled={isLoading}
+              variant={isRecording ? 'destructive' : 'default'}
             >
               {isRecording ? <MicOff className="h-8 w-8" /> : <Mic className="h-8 w-8" />}
             </Button>
@@ -126,6 +128,8 @@ export default function VoiceTriagePage() {
                 <audio
                   ref={audioRef}
                   src={result.audioResponseUri}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
                   onEnded={() => setIsPlaying(false)}
                 />
               </div>
