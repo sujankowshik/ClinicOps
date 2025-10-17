@@ -8,12 +8,15 @@ import {
 } from '@/lib/data';
 import type { Patient, Doctor, Appointment, InventoryItem, Visit } from '@/lib/types';
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, errorEmitter } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { collection, addDoc, doc, setDoc, updateDoc, increment, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, updateDoc, increment, query, where, getDocs, getDoc } from 'firebase/firestore';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
+import { sendEmail } from '@/ai/flows/send-email-flow';
+import { useToast } from '@/hooks/use-toast';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -47,6 +50,7 @@ export default function DashboardLayout({
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [doctors] = useState<Doctor[]>(initialDoctors);
   const [visitsByPatient, setVisitsByPatient] = useState<Record<string, Visit[]>>({});
+  const { toast } = useToast();
   
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -81,7 +85,12 @@ export default function DashboardLayout({
               allVisits[patient.id] = patientVisits;
             }
         } catch (error) {
-            console.error(`Could not fetch visits for patient ${patient.id}:`, error);
+            const contextualError = new FirestorePermissionError({
+              operation: 'list',
+              path: visitsCollectionRef.path,
+            });
+            console.error(`Could not fetch visits for patient ${patient.id}:`, contextualError);
+            errorEmitter.emit('permission-error', contextualError);
             // Fallback to static data on error
             allVisits[patient.id] = patient.visits;
         }
@@ -90,8 +99,10 @@ export default function DashboardLayout({
   }, [firestore, user]);
 
   useEffect(() => {
-    fetchAllVisits();
-  }, [fetchAllVisits]);
+    if (user) {
+      fetchAllVisits();
+    }
+  }, [user, fetchAllVisits]);
 
 
   const inventory = useMemo(() => {
@@ -152,12 +163,53 @@ export default function DashboardLayout({
     addDocumentNonBlocking(inventoryCollection, itemData);
   }
 
-  const updateInventoryItemStock = (itemId: string, quantityUsed: number) => {
-    if (!firestore) return;
+  const updateInventoryItemStock = async (itemId: string, quantityUsed: number) => {
+    if (!firestore || !user?.email) return;
+
     const itemDocRef = doc(firestore, `inventory_items/${itemId}`);
-    updateDocumentNonBlocking(itemDocRef, {
-      stock: increment(-quantityUsed)
-    });
+    
+    try {
+        const itemSnapshot = await getDoc(itemDocRef);
+        if (!itemSnapshot.exists()) {
+            console.error("Item not found");
+            return;
+        }
+
+        const itemData = itemSnapshot.data() as InventoryItem;
+        const previousStock = itemData.stock;
+        const newStock = previousStock - quantityUsed;
+
+        updateDocumentNonBlocking(itemDocRef, {
+            stock: increment(-quantityUsed)
+        });
+
+        if (newStock <= itemData.reorderLevel && previousStock > itemData.reorderLevel) {
+            try {
+                await sendEmail({
+                    to: user.email,
+                    subject: `Low Stock Alert: ${itemData.itemName}`,
+                    body: `The stock for "${itemData.itemName}" is running low.\n\n` +
+                          `Current Stock: ${newStock}\n` +
+                          `Reorder Level: ${itemData.reorderLevel}\n\n` +
+                          `Please reorder soon.`
+                });
+                toast({
+                    title: 'Low Stock Notification Sent',
+                    description: `An email has been sent to notify about low stock for ${itemData.itemName}.`
+                });
+            } catch (e) {
+                console.error("Failed to send low stock email notification", e);
+                toast({
+                    variant: "destructive",
+                    title: "Email Failed",
+                    description: "Could not send low stock notification."
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error("Error getting document:", error);
+    }
   }
 
   const addVisit = (visitData: Omit<Visit, 'id'>) => {
