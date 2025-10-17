@@ -76,8 +76,8 @@ const questionMap: { [key: string]: string[] } = {
 
 const findQuestionKey = (query: string): string | null => {
     const lowerCaseQuery = query.toLowerCase();
-    for(const key in questionMap) {
-        if(questionMap[key].every(keyword => lowerCaseQuery.includes(keyword))) {
+    for (const key in questionMap) {
+        if (questionMap[key].some(keyword => lowerCaseQuery.includes(keyword))) {
             return key;
         }
     }
@@ -291,3 +291,5 @@ export default function CareBotPage() {
     </Card>
   );
 }
+
+    
