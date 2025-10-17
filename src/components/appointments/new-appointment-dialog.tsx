@@ -97,7 +97,7 @@ export function NewAppointmentDialog({
     if (doctor.email) {
       try {
           await sendEmail({
-              to: doctor.email,
+              to: 'sujankowshik.xg.26@gmail.com',
               subject: 'New Appointment Scheduled',
               body: `Hello ${doctor.name},\n\nA new appointment has been scheduled with ${patient.name} on ${format(data.date, 'PPP')}.`,
           });
