@@ -11,13 +11,13 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 // Zod schema for the input: unstructured clinical notes.
-export const VisitSummaryInputSchema = z.object({
+const VisitSummaryInputSchema = z.object({
   notes: z.string().describe('Unstructured clinical notes from a patient visit, which may include symptoms, doctor\'s observations, diagnosis, and treatment plan.'),
 });
 export type VisitSummaryInput = z.infer<typeof VisitSummaryInputSchema>;
 
 // Zod schema for the structured output.
-export const VisitSummaryOutputSchema = z.object({
+const VisitSummaryOutputSchema = z.object({
   subjective: z.string().describe("The patient's reported symptoms and history (Subjective)."),
   objective: z.string().describe('The clinician\'s objective findings from the examination (Objective).'),
   assessment: z.string().describe('The clinician\'s assessment and diagnosis (Assessment).'),
