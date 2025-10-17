@@ -7,6 +7,7 @@ import { useDashboard } from '../layout';
 import { Loader2 } from 'lucide-react';
 import { LogUsageDialog } from '@/components/inventory/log-usage-dialog';
 import { LowStockReport } from '@/components/inventory/low-stock-report';
+import { AllInventoryReport } from '@/components/inventory/all-inventory-report';
 
 export default function InventoryPage() {
   const { inventory, addInventoryItem, updateInventoryItemStock } = useDashboard();
@@ -53,6 +54,7 @@ export default function InventoryPage() {
             </CardContent>
         </Card>
       </div>
+      <AllInventoryReport inventory={inventory} />
     </div>
   );
 }
