@@ -28,15 +28,15 @@ interface FeatureCardProps {
 function FeatureCard({ title, description, href, Icon }: FeatureCardProps) {
   return (
     <Link href={href}>
-      <Card className="h-full transition-all hover:shadow-md hover:-translate-y-1">
+      <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1 bg-accent/20 hover:bg-accent/30 border-accent/30">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-headline text-lg font-medium">
+          <CardTitle className="font-headline text-lg font-medium text-accent-foreground/90">
             {title}
           </CardTitle>
-          <Icon className="h-6 w-6 text-muted-foreground" />
+          <Icon className="h-6 w-6 text-accent-foreground/80" />
         </CardHeader>
         <CardContent>
-          <CardDescription>{description}</CardDescription>
+          <CardDescription className="text-accent-foreground/70">{description}</CardDescription>
         </CardContent>
       </Card>
     </Link>
