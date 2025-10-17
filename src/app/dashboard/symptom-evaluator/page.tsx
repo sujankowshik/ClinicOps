@@ -30,10 +30,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Sparkles, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
+import { RadialBar, RadialBarChart, PolarGrid } from 'recharts';
 
 const formSchema = z.object({
   symptoms: z.string().min(10, 'Please provide a detailed description of the symptoms.'),
   age: z.coerce.number().int().positive('Age must be a positive number.'),
+  durationInDays: z.coerce.number().int().positive('Duration must be a positive number.'),
   patientDetails: z.string().optional(),
 });
 
@@ -50,6 +57,7 @@ export default function SymptomEvaluatorPage() {
       symptoms: '',
       patientDetails: '',
       age: 0,
+      durationInDays: 0,
     },
   });
 
@@ -87,7 +95,7 @@ export default function SymptomEvaluatorPage() {
                     <FormLabel>Symptoms</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g., persistent cough, fever, and shortness of breath for 3 days."
+                        placeholder="e.g., persistent cough, fever, and shortness of breath."
                         className="min-h-[100px]"
                         {...field}
                       />
@@ -96,19 +104,34 @@ export default function SymptomEvaluatorPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Patient's Age</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="42" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Patient's Age</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="42" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="durationInDays"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Symptom Duration (Days)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g., 7" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="patientDetails"
@@ -155,30 +178,85 @@ export default function SymptomEvaluatorPage() {
           {error && <p className="text-destructive">{error}</p>}
           {result && (
             <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold">Potential Diagnoses</h3>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {result.potentialDiagnoses.map((diag, i) => (
-                    <Badge key={i} variant="secondary">{diag}</Badge>
-                  ))}
+              <div className="grid grid-cols-2 gap-4">
+                <div className='space-y-4'>
+                    <div>
+                        <h3 className="font-semibold">Potential Diagnoses</h3>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                        {result.potentialDiagnoses.map((diag, i) => (
+                            <Badge key={i} variant="secondary">{diag}</Badge>
+                        ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold">Severity Assessment</h3>
+                        <p className="flex items-center gap-2 pt-2">
+                            <AlertTriangle className={
+                                cn("h-5 w-5", {
+                                    "text-green-500": result.severityAssessment.toLowerCase() === 'mild',
+                                    "text-yellow-500": result.severityAssessment.toLowerCase() === 'moderate',
+                                    "text-red-500": result.severityAssessment.toLowerCase() === 'severe',
+                                })
+                            } />
+                            <span>{result.severityAssessment}</span>
+                        </p>
+                    </div>
+                     <div>
+                        <h3 className="font-semibold">Recommended Department</h3>
+                        <p className="pt-2">{result.recommendedDepartment}</p>
+                    </div>
                 </div>
-              </div>
-              <div>
-                <h3 className="font-semibold">Severity Assessment</h3>
-                <p className="flex items-center gap-2 pt-2">
-                    <AlertTriangle className={
-                        cn("h-5 w-5", {
-                            "text-green-500": result.severityAssessment.toLowerCase() === 'mild',
-                            "text-yellow-500": result.severityAssessment.toLowerCase() === 'moderate',
-                            "text-red-500": result.severityAssessment.toLowerCase() === 'severe',
-                        })
-                    } />
-                    <span>{result.severityAssessment}</span>
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold">Recommended Department</h3>
-                <p className="pt-2">{result.recommendedDepartment}</p>
+                <div>
+                  <h3 className="font-semibold text-center">Chronic Disease Probability</h3>
+                  <ChartContainer
+                    config={{
+                      probability: {
+                        label: 'Chronic Probability',
+                        color: 'hsl(var(--chart-3))',
+                      },
+                    }}
+                    className="mx-auto aspect-square h-[160px]"
+                  >
+                    <RadialBarChart
+                      data={[{ name: 'probability', value: result.chronicProbability * 100, fill: 'var(--color-probability)' }]}
+                      startAngle={-90}
+                      endAngle={270}
+                      innerRadius="70%"
+                      outerRadius="100%"
+                      barSize={10}
+                    >
+                      <PolarGrid
+                        gridType="circle"
+                        radialLines={false}
+                        stroke="none"
+                        className="first:fill-muted last:fill-background"
+                      />
+                      <RadialBar dataKey="value" background cornerRadius={5} />
+                       <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent 
+                            hideLabel 
+                            formatter={(value) => `${(Number(value)).toFixed(0)}% chance`}
+                         />}
+                        
+                        />
+                         <text
+                            x="50%"
+                            y="50%"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            className="fill-foreground text-2xl font-bold"
+                        >
+                            {(result.chronicProbability * 100).toFixed(0)}%
+                        </text>
+                    </RadialBarChart>
+                  </ChartContainer>
+                   <p className="text-center text-xs text-muted-foreground mt-2">
+                    {result.chronicProbability > 0.7 ? 'High probability of being chronic.' :
+                     result.chronicProbability > 0.4 ? 'Moderate probability of being chronic.' :
+                     'Low probability of being chronic.'}
+                   </p>
+                </div>
               </div>
               {result.additionalRecommendations && (
                 <div>
