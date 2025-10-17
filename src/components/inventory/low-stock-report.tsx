@@ -24,7 +24,7 @@ import { format } from 'date-fns';
 const chartConfig = {
   stock: {
     label: 'Current Stock',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-1))',
   },
   reorderLevel: {
     label: 'Reorder Level',

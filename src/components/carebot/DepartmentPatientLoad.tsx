@@ -29,7 +29,7 @@ export function DepartmentPatientLoad() {
                 border: "1px solid hsl(var(--border))",
               }}
             />
-            <Bar dataKey="patients" fill="hsl(var(--chart-5))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="patients" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

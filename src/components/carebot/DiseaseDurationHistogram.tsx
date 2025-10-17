@@ -28,7 +28,7 @@ export function DiseaseDurationHistogram() {
               formatter={(value, name, props) => [`${value} cases`, props.payload.note]}
               labelFormatter={(label) => `Duration: ${label}`}
             />
-            <Bar dataKey="cases" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="cases" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -22,7 +22,7 @@ import { format } from 'date-fns';
 const chartConfig = {
   patients: {
     label: 'Patients',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
 
