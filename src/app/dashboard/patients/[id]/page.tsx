@@ -45,7 +45,7 @@ export default function PatientDetailPage() {
   }
   
   const lastVisit = visits && visits.length > 0
-    ? visits.reduce((latest, visit) => new Date(visit.date) > new Date(latest.date) ? visit : latest, visits[0])
+    ? visits.reduce((latest, visit) => new Date(visit.date) > new Date(latest.date) ? visit : latest)
     : null;
 
   return (
@@ -116,7 +116,7 @@ export default function PatientDetailPage() {
               </TableHeader>
               <TableBody>
                 {visits && visits.length > 0 ? (
-                  visits.map((visit) => (
+                  visits.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((visit) => (
                   <TableRow key={visit.id}>
                     <TableCell>{format(parseISO(visit.date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>
