@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { faqAndTriageAssistant } from '@/ai/flows/faq-and-triage-assistant';
+import { transcribeAudio } from '@/ai/flows/transcribe-audio-flow';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, Send, User, Bot } from 'lucide-react';
+import { Loader2, Send, User, Bot, Mic, MicOff } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,8 @@ import { ChestPainComparisonTable } from '@/components/carebot/ChestPainComparis
 import { DiseaseDurationHistogram } from '@/components/carebot/DiseaseDurationHistogram';
 import { DepartmentPatientLoad } from '@/components/carebot/DepartmentPatientLoad';
 import { TreatmentPlanCard } from '@/components/carebot/TreatmentPlanCard';
+import { useToast } from '@/hooks/use-toast';
+
 
 const formSchema = z.object({
   query: z.string().min(1, 'Please enter a question.'),
@@ -84,7 +87,13 @@ const findQuestionKey = (query: string): string | null => {
 export default function CareBotPage() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const { toast } = useToast();
   
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { query: '' },
@@ -128,6 +137,56 @@ export default function CareBotPage() {
 
 
     setLoading(false);
+  };
+  
+  const handleTranscription = async () => {
+    setLoading(true);
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+    audioChunksRef.current = [];
+
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = async () => {
+        const base64Audio = reader.result as string;
+        try {
+            const { text } = await transcribeAudio({ audioDataUri: base64Audio });
+            if (text) {
+                await handleAiResponse(text);
+            } else {
+                toast({ variant: 'destructive', title: 'Transcription Failed', description: 'Could not understand audio. Please try again.' });
+            }
+        } catch (error) {
+            console.error('Error during transcription:', error);
+            toast({ variant: 'destructive', title: 'Error', description: 'An error occurred during transcription.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      mediaRecorderRef.current.onstop = handleTranscription;
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      toast({ variant: 'destructive', title: 'Microphone Error', description: 'Could not access microphone.'});
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const onSubmit = (data: FormValues) => {
@@ -208,13 +267,22 @@ export default function CareBotPage() {
               render={({ field }) => (
                 <FormItem className="flex-grow">
                   <FormControl>
-                    <Input placeholder="Ask a question..." {...field} disabled={loading} />
+                    <Input placeholder={isRecording ? 'Recording...' : "Ask a question..."} {...field} disabled={loading || isRecording} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={loading} size="icon">
+            <Button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={loading}
+              size="icon"
+              variant={isRecording ? 'destructive' : 'outline'}
+            >
+              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Button type="submit" disabled={loading || isRecording} size="icon">
               <Send className="h-4 w-4" />
             </Button>
           </form>
