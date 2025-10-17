@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Surface, Symbols } from 'recharts';
@@ -15,7 +16,7 @@ export function SymptomFrequencyHeatmap() {
 
     const getColor = (frequency: number) => {
         const opacity = frequency / maxFreq;
-        return `hsla(var(--primary), ${opacity})`;
+        return `hsla(var(--primary-hsl), ${opacity})`.replace(')', ', 1)');
     };
 
   return (
@@ -29,10 +30,13 @@ export function SymptomFrequencyHeatmap() {
                 <div 
                     key={symptom.name}
                     className="p-4 rounded-lg text-center"
-                    style={{ backgroundColor: getColor(symptom.frequency) }}
+                    style={{ 
+                        backgroundColor: `hsl(var(--primary) / ${symptom.frequency / maxFreq})`,
+                        color: `hsl(var(--primary-foreground))`
+                    }}
                 >
-                    <div className="font-bold text-primary-foreground">{symptom.name}</div>
-                    <div className="text-xs text-primary-foreground/80">{symptom.frequency} cases</div>
+                    <div className="font-bold">{symptom.name}</div>
+                    <div className="text-xs opacity-80">{symptom.frequency} cases</div>
                 </div>
             ))}
         </div>

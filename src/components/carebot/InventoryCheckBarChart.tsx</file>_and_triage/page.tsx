@@ -39,8 +39,3 @@ export function InventoryCheckBarChart() {
       </div>
 
       <p className="text-sm text-yellow-500 font-semibold">
-        Suggestion: Place a refill order within 2 days to avoid shortage.
-      </p>
-    </div>
-  );
-}

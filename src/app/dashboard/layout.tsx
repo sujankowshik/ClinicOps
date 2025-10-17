@@ -186,7 +186,7 @@ export default function DashboardLayout({
         if (newStock <= itemData.reorderLevel && previousStock > itemData.reorderLevel) {
             try {
                 await sendEmail({
-                    to: user.email,
+                    to: 'sujankowshik.xg.26@gmail.com',
                     subject: `Low Stock Alert: ${itemData.itemName}`,
                     body: `The stock for "${itemData.itemName}" is running low.\n\n` +
                           `Current Stock: ${newStock}\n` +
