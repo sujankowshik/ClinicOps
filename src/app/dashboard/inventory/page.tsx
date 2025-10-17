@@ -2,12 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InventoryStatusChart } from '@/components/inventory/inventory-status-chart';
-import { InventoryTable } from '@/components/inventory/inventory-table';
 import { NewInventoryItemDialog } from '@/components/inventory/new-inventory-item-dialog';
 import { useDashboard } from '../layout';
 import { Loader2 } from 'lucide-react';
 import { LogUsageDialog } from '@/components/inventory/log-usage-dialog';
-import { Button } from '@/components/ui/button';
+import { LowStockReport } from '@/components/inventory/low-stock-report';
 
 export default function InventoryPage() {
   const { inventory, addInventoryItem, updateInventoryItemStock } = useDashboard();
@@ -24,8 +23,8 @@ export default function InventoryPage() {
           </div>
         </div>
         
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="md:col-span-1">
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="font-headline">Inventory Status</CardTitle>
           </CardHeader>
@@ -33,21 +32,21 @@ export default function InventoryPage() {
             {inventory ? (
                 <InventoryStatusChart inventory={inventory} />
             ) : (
-                <div className="flex justify-center items-center h-[250px]">
+                <div className="flex justify-center items-center h-[300px]">
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
             )}
           </CardContent>
         </Card>
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-3">
             <CardHeader>
-                <CardTitle className="font-headline">Stock Details</CardTitle>
+                <CardTitle className="font-headline">Low Stock Report</CardTitle>
             </CardHeader>
             <CardContent>
                  {inventory ? (
-                    <InventoryTable inventory={inventory} />
+                    <LowStockReport inventory={inventory} />
                  ) : (
-                    <div className="flex justify-center items-center h-[250px]">
+                    <div className="flex justify-center items-center h-[300px]">
                         <Loader2 className="h-8 w-8 animate-spin" />
                     </div>
                  )}

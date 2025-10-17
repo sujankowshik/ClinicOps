@@ -30,9 +30,11 @@ export function InventoryTable({ inventory }: InventoryTableProps) {
 
   const getProgressColor = (stock: number, reorderLevel: number) => {
     if (reorderLevel <= 0) return 'bg-primary'; // Avoid division by zero
-    const percentage = (stock / (reorderLevel * 2)) * 100;
-    if (percentage < 25) return 'bg-destructive';
-    if (percentage < 50) return 'bg-yellow-500';
+    // Consider max stock to be roughly double the reorder level for visualization
+    const maxStock = reorderLevel * 2;
+    const percentage = (stock / maxStock) * 100;
+    if (percentage < (item.reorderLevel / maxStock * 100)) return 'bg-destructive';
+    if (percentage < ((item.reorderLevel * 1.5) / maxStock * 100)) return 'bg-yellow-500';
     return 'bg-primary';
   };
 
@@ -54,7 +56,6 @@ export function InventoryTable({ inventory }: InventoryTableProps) {
               <div className="flex items-center gap-2">
                 <Progress value={(item.stock / (item.reorderLevel * 2)) * 100} className="h-2 w-20" indicatorClassName={getProgressColor(item.stock, item.reorderLevel)} />
                 <span>{item.stock}</span>
-                <span className="text-muted-foreground">/ {item.reorderLevel*2}</span>
               </div>
             </TableCell>
             <TableCell>
