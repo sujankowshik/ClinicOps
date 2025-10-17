@@ -50,10 +50,16 @@ export default function DashboardLayout({
   const router = useRouter();
   const firestore = useFirestore();
 
-  const appointmentsQuery = useMemoFirebase(() => collection(firestore, 'appointments'), [firestore]);
+  const appointmentsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'appointments');
+  }, [user, firestore]);
   const { data: appointments } = useCollection<Appointment>(appointmentsQuery);
 
-  const inventoryQuery = useMemoFirebase(() => collection(firestore, 'inventory_items'), [firestore]);
+  const inventoryQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'inventory_items');
+  }, [user, firestore]);
   const { data: inventoryData } = useCollection<Omit<InventoryItem, 'status'>>(inventoryQuery);
 
   const inventory = useMemo(() => {
