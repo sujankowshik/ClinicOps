@@ -29,9 +29,10 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const { addVisit } = useDashboard();
   const firestore = useFirestore();
-  const patient = patients.find((p) => p.id === params.id);
+  const patient = patients.find((p) => p.id === id);
 
   const visitsQuery = useMemoFirebase(
     () => (patient ? collection(firestore, `patients/${patient.id}/visits`) : null),
