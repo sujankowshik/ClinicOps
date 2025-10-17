@@ -7,13 +7,15 @@ import {
   doctors as initialDoctors,
 } from '@/lib/data';
 import type { Patient, Doctor, Appointment, InventoryItem, Visit } from '@/lib/types';
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { collection, addDoc, doc, setDoc, updateDoc, increment, query, where, getDocs } from 'firebase/firestore';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -64,15 +66,14 @@ export default function DashboardLayout({
   }, [user, firestore]);
   const { data: inventoryData } = useCollection<Omit<InventoryItem, 'status'>>(inventoryQuery);
 
-  useEffect(() => {
+  const fetchAllVisits = useCallback(async () => {
     if (!firestore || !user) return;
 
-    const fetchAllVisits = async () => {
-        const allVisits: Record<string, Visit[]> = {};
-        for (const patient of initialPatients) {
-            const visitsCollectionRef = collection(firestore, `patients/${patient.id}/visits`);
-            const q = query(visitsCollectionRef);
-            const querySnapshot = await getDocs(q);
+    const allVisits: Record<string, Visit[]> = {};
+    for (const patient of initialPatients) {
+        const visitsCollectionRef = collection(firestore, `patients/${patient.id}/visits`);
+        try {
+            const querySnapshot = await getDocs(visitsCollectionRef);
             const patientVisits = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Visit));
             
             // Add static visits if no dynamic visits are found
@@ -81,12 +82,22 @@ export default function DashboardLayout({
             } else {
               allVisits[patient.id] = patientVisits;
             }
+        } catch (error) {
+            const contextualError = new FirestorePermissionError({
+              operation: 'list',
+              path: visitsCollectionRef.path,
+            });
+            errorEmitter.emit('permission-error', contextualError);
+            // Fallback to static data on error
+            allVisits[patient.id] = patient.visits;
         }
-        setVisitsByPatient(allVisits);
-    };
+    }
+    setVisitsByPatient(allVisits);
+  }, [firestore, user]);
 
+  useEffect(() => {
     fetchAllVisits();
-}, [firestore, user]);
+  }, [fetchAllVisits]);
 
 
   const inventory = useMemo(() => {
