@@ -6,6 +6,7 @@ import { useDashboard } from '../layout';
 import { Loader2 } from 'lucide-react';
 import { LowStockReport } from '@/components/inventory/low-stock-report';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PatientReportChart } from '@/components/analytics/patient-report-chart';
 
 export default function AnalyticsPage() {
   const { appointments, patients, inventory } = useDashboard();
@@ -23,7 +24,9 @@ export default function AnalyticsPage() {
       <StatsCards appointments={appointments} patients={patients} inventory={inventory} />
       <div className="grid gap-6 md:grid-cols-2">
         <AttendanceChart appointments={appointments} />
-        <Card>
+        <PatientReportChart patients={patients} />
+      </div>
+       <Card>
             <CardHeader>
                 <CardTitle className="font-headline">Low Stock Report</CardTitle>
             </CardHeader>
@@ -37,7 +40,6 @@ export default function AnalyticsPage() {
                  )}
             </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
