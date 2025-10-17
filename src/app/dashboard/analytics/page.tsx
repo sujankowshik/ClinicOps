@@ -19,8 +19,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <StatsCards appointments={appointments} patients={patients} inventory={inventory} />
-      <div className="grid gap-6 md:grid-cols-2">
-        <AttendanceChart appointments={appointments} />
+      <div className="grid gap-6 md:grid-cols-1">
         <AttendanceChart appointments={appointments} />
       </div>
     </div>
