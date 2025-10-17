@@ -1,3 +1,4 @@
+
 'use client';
 
 import { patients } from '@/lib/data';
@@ -24,20 +25,24 @@ import { format, parseISO } from 'date-fns';
 import { useDashboard } from '../../layout';
 import type { Visit } from '@/lib/types';
 import { VisitSummary } from '@/components/patients/visit-summary';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { addVisit } = useDashboard();
-  const firestore = useFirestore();
+  const { addVisit, getPatientVisits } = useDashboard();
+  const [visits, setVisits] = useState<Visit[] | undefined>([]);
+  const [visitsLoading, setVisitsLoading] = useState(true);
+
   const patient = patients.find((p) => p.id === id);
 
-  const visitsQuery = useMemoFirebase(
-    () => (patient ? collection(firestore, `patients/${patient.id}/visits`) : null),
-    [firestore, patient]
-  );
-  const { data: visits, isLoading: visitsLoading } = useCollection<Visit>(visitsQuery);
+  useEffect(() => {
+    if (patient) {
+      setVisitsLoading(true);
+      const patientVisits = getPatientVisits(patient.id);
+      setVisits(patientVisits);
+      setVisitsLoading(false);
+    }
+  }, [id, patient, getPatientVisits]);
 
 
   if (!patient) {

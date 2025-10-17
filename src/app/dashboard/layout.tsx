@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Header } from '@/components/layout/header';
@@ -10,7 +11,7 @@ import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { collection, addDoc, doc, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, updateDoc, increment, query, where, getDocs } from 'firebase/firestore';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
 
@@ -45,6 +46,7 @@ export default function DashboardLayout({
 }) {
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [doctors] = useState<Doctor[]>(initialDoctors);
+  const [visitsByPatient, setVisitsByPatient] = useState<Record<string, Visit[]>>({});
   
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -61,6 +63,31 @@ export default function DashboardLayout({
     return collection(firestore, 'inventory_items');
   }, [user, firestore]);
   const { data: inventoryData } = useCollection<Omit<InventoryItem, 'status'>>(inventoryQuery);
+
+  useEffect(() => {
+    if (!firestore || !user) return;
+
+    const fetchAllVisits = async () => {
+        const allVisits: Record<string, Visit[]> = {};
+        for (const patient of initialPatients) {
+            const visitsCollectionRef = collection(firestore, `patients/${patient.id}/visits`);
+            const q = query(visitsCollectionRef);
+            const querySnapshot = await getDocs(q);
+            const patientVisits = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Visit));
+            
+            // Add static visits if no dynamic visits are found
+            if(patientVisits.length === 0) {
+              allVisits[patient.id] = patient.visits;
+            } else {
+              allVisits[patient.id] = patientVisits;
+            }
+        }
+        setVisitsByPatient(allVisits);
+    };
+
+    fetchAllVisits();
+}, [firestore, user]);
+
 
   const inventory = useMemo(() => {
     if (!inventoryData) return null;
@@ -104,6 +131,7 @@ export default function DashboardLayout({
   };
   
   const addAppointment = (newAppointmentData: Omit<Appointment, 'id' | 'status' | 'time'>) => {
+    if (!firestore) return;
     const appointmentsCollection = collection(firestore, 'appointments');
     const appointmentWithStatus = {
         ...newAppointmentData,
@@ -114,11 +142,13 @@ export default function DashboardLayout({
   }
   
   const addInventoryItem = (itemData: Omit<InventoryItem, 'id' | 'status'>) => {
+    if (!firestore) return;
     const inventoryCollection = collection(firestore, 'inventory_items');
     addDocumentNonBlocking(inventoryCollection, itemData);
   }
 
   const updateInventoryItemStock = (itemId: string, quantityUsed: number) => {
+    if (!firestore) return;
     const itemDocRef = doc(firestore, `inventory_items/${itemId}`);
     updateDocumentNonBlocking(itemDocRef, {
       stock: increment(-quantityUsed)
@@ -126,12 +156,21 @@ export default function DashboardLayout({
   }
 
   const addVisit = (visitData: Omit<Visit, 'id'>) => {
+    if (!firestore) return;
     const visitsCollection = collection(firestore, `patients/${visitData.patientId}/visits`);
-    addDocumentNonBlocking(visitsCollection, visitData);
+    addDocumentNonBlocking(visitsCollection, visitData).then(docRef => {
+        if(docRef) {
+          const newVisit = { id: docRef.id, ...visitData };
+          setVisitsByPatient(prev => ({
+              ...prev,
+              [visitData.patientId]: [...(prev[visitData.patientId] || []), newVisit]
+          }));
+        }
+    });
   };
 
   const getPatientVisits = (patientId: string) => {
-    return undefined;
+    return visitsByPatient[patientId];
   };
 
   const contextValue = {

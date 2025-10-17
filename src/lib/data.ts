@@ -122,6 +122,19 @@ export const patients: Patient[] = [
     visits: [
         { id: 'v11', patientId: '10', date: '2023-09-05', doctor: 'Dr. Ben Carter', reason: 'Allergy testing', notes: 'Allergic to pollen and dust mites.' }
     ],
+  },
+  {
+    id: '11',
+    name: 'Anu',
+    age: 22,
+    gender: 'Female',
+    avatarUrl: 'https://picsum.photos/seed/patient11/100/100',
+    registeredDate: '2023-01-15',
+    conditions: ['Migraines'],
+    visits: [
+      { id: 'v12', patientId: '11', date: '2023-03-10', doctor: 'Dr. Isla Martinez', reason: 'Headache', notes: 'Prescribed medication for migraines.' },
+      { id: 'v13', patientId: '11', date: '2023-09-18', doctor: 'Dr. Evelyn Reed', reason: 'Follow-up', notes: 'Patient reports improvement in symptoms.' }
+    ],
   }
 ];
 
