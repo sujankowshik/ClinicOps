@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, ComponentType } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { HighUrgencyDiseases } from '@/components/carebot/HighUrgencyDiseases';
+import { ChronicDiseasesTable } from '@/components/carebot/ChronicDiseasesTable';
+import { DoctorAvailability } from '@/components/carebot/DoctorAvailability';
+import { DoctorCasesPieChart } from '@/components/carebot/DoctorCasesPieChart';
+import { InventoryCheckBarChart } from '@/components/carebot/InventoryCheckBarChart';
+import { SymptomFrequencyHeatmap } from '@/components/carebot/SymptomFrequencyHeatmap';
+import { ChestPainComparisonTable } from '@/components/carebot/ChestPainComparisonTable';
+import { DiseaseDurationHistogram } from '@/components/carebot/DiseaseDurationHistogram';
+import { DepartmentPatientLoad } from '@/components/carebot/DepartmentPatientLoad';
+import { TreatmentPlanCard } from '@/components/carebot/TreatmentPlanCard';
 
 const formSchema = z.object({
   query: z.string().min(1, 'Please enter a question.'),
@@ -31,10 +41,47 @@ type FormValues = z.infer<typeof formSchema>;
 
 type Message = {
   role: 'user' | 'assistant';
-  content: string;
+  content: string | ComponentType;
   isComplex?: boolean;
   triageInstructions?: string;
+  props?: Record<string, any>;
 };
+
+const predefinedQuestions: { [key: string]: ComponentType } = {
+    'q1': HighUrgencyDiseases,
+    'q2': ChronicDiseasesTable,
+    'q3': DoctorAvailability,
+    'q4': DoctorCasesPieChart,
+    'q5': InventoryCheckBarChart,
+    'q6': SymptomFrequencyHeatmap,
+    'q7': ChestPainComparisonTable,
+    'q8': DiseaseDurationHistogram,
+    'q9': DepartmentPatientLoad,
+    'q10': TreatmentPlanCard,
+};
+
+const questionMap: { [key: string]: string[] } = {
+    'q1': ['high urgency'],
+    'q2': ['chronic', 'long-term care'],
+    'q3': ['abdominal pain', 'nausea', 'available'],
+    'q4': ['dr. farhan', 'diseases treated'],
+    'q5': ['antimalarial', 'inventory'],
+    'q6': ['symptoms', 'frequently'],
+    'q7': ['chest pain', 'severe'],
+    'q8': ['average disease duration'],
+    'q9': ['department', 'most patients'],
+    'q10': ['treatment plan', 'dengue'],
+};
+
+const findQuestionKey = (query: string): string | null => {
+    const lowerCaseQuery = query.toLowerCase();
+    for(const key in questionMap) {
+        if(questionMap[key].every(keyword => lowerCaseQuery.includes(keyword))) {
+            return key;
+        }
+    }
+    return null;
+}
 
 export default function CareBotPage() {
   const [loading, setLoading] = useState(false);
@@ -55,23 +102,37 @@ export default function CareBotPage() {
     setMessages((prev) => [...prev, userMessage]);
     form.reset();
 
-    try {
-      const response = await faqAndTriageAssistant({ query });
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: response.answer,
-        isComplex: response.isComplex,
-        triageInstructions: response.triageInstructions,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (e) {
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-      console.error(e);
+    const questionKey = findQuestionKey(query);
+
+    if (questionKey && predefinedQuestions[questionKey]) {
+        const CannedResponseComponent = predefinedQuestions[questionKey];
+        const assistantMessage: Message = {
+            role: 'assistant',
+            content: CannedResponseComponent,
+            props: {}
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+    } else {
+        try {
+            const response = await faqAndTriageAssistant({ query });
+            const assistantMessage: Message = {
+                role: 'assistant',
+                content: response.answer,
+                isComplex: response.isComplex,
+                triageInstructions: response.triageInstructions,
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
+        } catch (e) {
+            const errorMessage: Message = {
+                role: 'assistant',
+                content: 'Sorry, I encountered an error. Please try again.',
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+            console.error(e);
+        }
     }
+
+
     setLoading(false);
   };
 
@@ -165,13 +226,18 @@ export default function CareBotPage() {
                 )}
                 <div
                   className={cn(
-                    'max-w-md rounded-lg p-3',
+                    'max-w-prose rounded-lg p-3',
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted'
                   )}
                 >
-                  <p className="text-sm">{message.content}</p>
+                    {typeof message.content === 'string' ? (
+                        <p className="text-sm">{message.content}</p>
+                    ) : (
+                        <message.content {...message.props} />
+                    )}
+
                   {message.isComplex && (
                     <div className="mt-2 border-t border-border/50 pt-2">
                         <p className="text-xs font-semibold">This seems complex. Here's the next step:</p>
