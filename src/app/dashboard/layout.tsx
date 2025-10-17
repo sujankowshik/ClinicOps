@@ -14,8 +14,6 @@ import { Loader2 } from 'lucide-react';
 import { collection, addDoc, doc, setDoc, updateDoc, increment, query, where, getDocs } from 'firebase/firestore';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { format } from 'date-fns';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 
 type DashboardContextType = {
   patients: Patient[];
@@ -83,11 +81,7 @@ export default function DashboardLayout({
               allVisits[patient.id] = patientVisits;
             }
         } catch (error) {
-            const contextualError = new FirestorePermissionError({
-              operation: 'list',
-              path: visitsCollectionRef.path,
-            });
-            errorEmitter.emit('permission-error', contextualError);
+            console.error(`Could not fetch visits for patient ${patient.id}:`, error);
             // Fallback to static data on error
             allVisits[patient.id] = patient.visits;
         }

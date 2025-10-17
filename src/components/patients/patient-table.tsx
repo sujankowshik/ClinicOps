@@ -52,11 +52,14 @@ export function PatientTable({ patients }: PatientTableProps) {
             <TableCell>{patient.gender}</TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">
-                {patient.conditions.map((condition) => (
+                {patient.conditions.slice(0, 2).map((condition) => (
                   <Badge key={condition} variant="secondary">
                     {condition}
                   </Badge>
                 ))}
+                {patient.conditions.length > 2 && (
+                    <Badge variant='outline'>+{patient.conditions.length-2} more</Badge>
+                )}
               </div>
             </TableCell>
             <TableCell className="text-right">{format(parseISO(patient.registeredDate), 'MMMM d, yyyy')}</TableCell>
