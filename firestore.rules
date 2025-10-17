@@ -1,44 +1,37 @@
 /**
- * @fileoverview Firestore Security Rules for Clinic Ops 2.0.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for patients, visits, physicians and inventory items.
- * Appointments are accessible to all authenticated users.
- *
- * Data Structure:
- * - /patients/{patientId}: Stores patient information.
- * - /patients/{patientId}/visits/{visitId}: Stores visit information for a specific patient.
- * - /appointments/{appointmentId}: Stores appointment information.
- * - /inventory_items/{inventoryItemId}: Stores inventory item information.
- * - /physicians/{physicianId}: Stores physician information.
- *
- * Key Security Decisions:
- * - User listing is generally disallowed unless explicitly stated otherwise.
- * - All write operations are protected by authorization checks.
- *
- * Denormalization for Authorization:
- * - The rules leverage path-based ownership, eliminating the need for `get()` calls.
+ * @file Firestore Security Rules for Clinic Ops 2.0
+ * @core_philosophy This ruleset enforces a strict user-ownership model for patient data and general authentication for other collections, with the goal of preventing unauthorized data access.
+ * @data_structure The database is structured with patients and physicians at the top level, each identified by a unique ID. Patient visits are stored as subcollections under each patient. Appointments and inventory items are stored in their own top-level collections.
+ * @key_security_decisions
+ *   - Patient and visit data is strictly controlled by patient ID in the path.
+ *   - Physician and inventory data is accessible only to authenticated users.
+ *   - Appointments are accessible to any authenticated user.
+ *   - List operations are restricted to owners for user-scoped subcollections.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Secures the /patients/{patientId} collection, ensuring only the authenticated user matching the patient ID can access patient documents.
-     * @path /databases/{database}/documents/patients/{patientId}
-     * @allow (create, get, update, delete, list) if the authenticated user's UID matches the patientId.
-     *   Example:
-     *   - Allowed: User with UID "user123" creates a document at /patients/user123.
-     *   - Allowed: User with UID "user123" reads, updates, or deletes the document at /patients/user123.
-     * @deny (create, get, update, delete, list) if the authenticated user's UID does not match the patientId.
-     *   Example:
-     *   - Denied: User with UID "user456" attempts to read the document at /patients/user123.
-     * @principle Enforces document ownership for all operations.
+     * @description Controls access to patient documents.
+     * @path /patients/{patientId}
+     * @allow (create) Authenticated user can create a patient document if the ID matches their UID.
+     * @allow (read) Authenticated user can read a patient document if the ID matches their UID.
+     * @allow (update) Authenticated user can update a patient document if the ID matches their UID and the document exists.
+     * @allow (delete) Authenticated user can delete a patient document if the ID matches their UID and the document exists.
+     * @deny (create) An unauthenticated user cannot create a patient document.
+     * @deny (read) An unauthenticated user cannot read a patient document.
+     * @deny (update) An unauthenticated user cannot update a patient document.
+     * @deny (delete) An unauthenticated user cannot delete a patient document.
+     * @principle Enforces document ownership for all operations based on the patient ID in the path.
      */
     match /patients/{patientId} {
+      // Helper function to check if the authenticated user is the owner of the patient document.
       function isOwner(patientId) {
         return request.auth != null && request.auth.uid == patientId;
       }
+
+      // Helper function to check if the authenticated user is the owner of an existing patient document.
       function isExistingOwner(patientId) {
         return isOwner(patientId) && resource != null;
       }
@@ -51,25 +44,29 @@ service cloud.firestore {
     }
 
     /**
-     * @description Secures the /patients/{patientId}/visits/{visitId} subcollection, ensuring only the authenticated user matching the patient ID can access visit documents.
-     * @path /databases/{database}/documents/patients/{patientId}/visits/{visitId}
-     * @allow (create, get, update, delete, list) if the authenticated user's UID matches the patientId.
-     *   Example:
-     *   - Allowed: User with UID "user123" creates a document at /patients/user123/visits/visit456.
-     *   - Allowed: User with UID "user123" reads, updates, or deletes the document at /patients/user123/visits/visit456.
-     * @deny (create, get, update, delete, list) if the authenticated user's UID does not match the patientId.
-     *   Example:
-     *   - Denied: User with UID "user456" attempts to read the document at /patients/user123/visits/visit456.
-     * @principle Enforces document ownership for all operations on the subcollection.
+     * @description Controls access to visit documents nested under patient documents.
+     * @path /patients/{patientId}/visits/{visitId}
+     * @allow (create) Authenticated user can create a visit document if they own the parent patient document.
+     * @allow (read) Authenticated user can read a visit document if they own the parent patient document.
+     * @allow (update) Authenticated user can update a visit document if they own the parent patient document and the visit document exists.
+     * @allow (delete) Authenticated user can delete a visit document if they own the parent patient document and the visit document exists.
+     * @deny (create) An unauthenticated user cannot create a visit document.
+     * @deny (read) An unauthenticated user cannot read a visit document.
+     * @deny (update) An unauthenticated user cannot update a visit document.
+     * @deny (delete) An unauthenticated user cannot delete a visit document.
+     * @principle Enforces document ownership for all operations based on the patient ID in the path.
      */
     match /patients/{patientId}/visits/{visitId} {
+      // Reuse the isOwner function from the /patients/{patientId} match block.
       function isOwner(patientId) {
         return request.auth != null && request.auth.uid == patientId;
       }
+
+      // Helper function to check if the authenticated user is the owner of an existing patient document.
       function isExistingOwner(patientId) {
         return isOwner(patientId) && resource != null;
       }
-
+        
       allow get: if isOwner(patientId);
       allow list: if isOwner(patientId);
       allow create: if isOwner(patientId);
@@ -78,84 +75,75 @@ service cloud.firestore {
     }
 
     /**
-     * @description Secures the /appointments/{appointmentId} collection, allowing any authenticated user to access appointment documents.
-     * @path /databases/{database}/documents/appointments/{appointmentId}
-     * @allow (create, get, update, delete, list) if the user is authenticated.
-     *   Example:
-     *   - Allowed: Any authenticated user can create a document at /appointments/app123.
-     *   - Allowed: Any authenticated user can read, update, or delete the document at /appointments/app123.
-     * @deny (create, get, update, delete, list) if the user is not authenticated.
-     *   Example:
-     *   - Denied: Unauthenticated user attempts to read the document at /appointments/app123.
-     * @principle Allows all authenticated users to access appointments.
+     * @description Controls access to appointment documents.
+     * @path /appointments/{appointmentId}
+     * @allow (create) Any authenticated user can create an appointment document.
+     * @allow (read) Any authenticated user can read an appointment document.
+     * @allow (update) Any authenticated user can update an appointment document if it exists.
+     * @allow (delete) Any authenticated user can delete an appointment document if it exists.
+     * @deny (create) An unauthenticated user cannot create an appointment document.
+     * @deny (read) An unauthenticated user cannot read an appointment document.
+     * @deny (update) An unauthenticated user cannot update an appointment document.
+     * @deny (delete) An unauthenticated user cannot delete an appointment document.
+     * @principle Allows any authenticated user to perform CRUD operations on appointment documents.
      */
     match /appointments/{appointmentId} {
       function isSignedIn() {
         return request.auth != null;
       }
-      function isExisting() {
-        return resource != null;
-      }
 
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && isExisting();
-      allow delete: if isSignedIn() && isExisting();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
     }
 
     /**
-     * @description Secures the /inventory_items/{inventoryItemId} collection, ensuring only authenticated users can access inventory item documents.
-     * @path /databases/{database}/documents/inventory_items/{inventoryItemId}
-     * @allow (create, get, update, delete, list) if the user is authenticated.
-     *   Example:
-     *   - Allowed: Authenticated user creates a document at /inventory_items/item123.
-     *   - Allowed: Authenticated user reads, updates, or deletes the document at /inventory_items/item123.
-     * @deny (create, get, update, delete, list) if the user is not authenticated.
-     *   Example:
-     *   - Denied: Unauthenticated user attempts to read the document at /inventory_items/item123.
-     * @principle Requires authentication for all operations on inventory items.
+     * @description Controls access to inventory item documents.
+     * @path /inventory_items/{inventoryItemId}
+     * @allow (create) Any authenticated user can create an inventory item document.
+     * @allow (read) Any authenticated user can read an inventory item document.
+     * @allow (update) Any authenticated user can update an inventory item document if it exists.
+     * @allow (delete) Any authenticated user can delete an inventory item document if it exists.
+     * @deny (create) An unauthenticated user cannot create an inventory item document.
+     * @deny (read) An unauthenticated user cannot read an inventory item document.
+     * @deny (update) An unauthenticated user cannot update an inventory item document.
+     * @deny (delete) An unauthenticated user cannot delete an inventory item document.
+     * @principle Allows any authenticated user to perform CRUD operations on inventory item documents.
      */
     match /inventory_items/{inventoryItemId} {
       function isSignedIn() {
         return request.auth != null;
       }
-       function isExisting() {
-        return resource != null;
-      }
 
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && isExisting();
-      allow delete: if isSignedIn() && isExisting();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
     }
 
     /**
-     * @description Secures the /physicians/{physicianId} collection, ensuring only the authenticated user matching the physician ID can access physician documents.
-     * @path /databases/{database}/documents/physicians/{physicianId}
-     * @allow (create, get, update, delete, list) if the authenticated user's UID matches the physicianId.
-     *   Example:
-     *   - Allowed: User with UID "user123" creates a document at /physicians/user123.
-     *   - Allowed: User with UID "user123" reads, updates, or deletes the document at /physicians/user123.
-     * @deny (create, get, update, delete, list) if the authenticated user's UID does not match the physicianId.
-     *   Example:
-     *   - Denied: User with UID "user456" attempts to read the document at /physicians/user123.
-     * @principle Enforces document ownership for all operations.
+     * @description Controls access to physician documents.
+     * @path /physicians/{physicianId}
+     * @allow (create) Any authenticated user can create a physician document.
+     * @allow (read) Any authenticated user can read a physician document.
+     * @allow (update) Any authenticated user can update a physician document if it exists.
+     * @allow (delete) Any authenticated user can delete a physician document if it exists.
+     * @deny (create) An unauthenticated user cannot create a physician document.
+     * @deny (read) An unauthenticated user cannot read a physician document.
+     * @deny (update) An unauthenticated user cannot update a physician document.
+     * @deny (delete) An unauthenticated user cannot delete a physician document.
+     * @principle Allows any authenticated user to perform CRUD operations on physician documents.
      */
     match /physicians/{physicianId} {
-      function isOwner(physicianId) {
-        return request.auth != null && request.auth.uid == physicianId;
-      }
-      function isExistingOwner(physicianId) {
-        return isOwner(physicianId) && resource != null;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      allow get: if isOwner(physicianId);
-      allow list: if false;
-      allow create: if isOwner(physicianId);
-      allow update: if isExistingOwner(physicianId);
-      allow delete: if isExistingOwner(physicianId);
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
     }
   }
 }
