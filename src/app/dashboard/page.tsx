@@ -13,7 +13,6 @@ import {
   Boxes,
   HeartPulse,
   MessageSquareQuote,
-  Mic,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
@@ -80,12 +79,6 @@ export default function DashboardPage() {
       description: 'AI assistant for FAQs and triaging queries.',
       href: '/dashboard/faq-and-triage',
       Icon: MessageSquareQuote,
-    },
-     {
-      title: 'Voice Triage',
-      description: 'Describe symptoms with your voice and get AI analysis.',
-      href: '/dashboard/voice-triage',
-      Icon: Mic,
     },
   ];
 
