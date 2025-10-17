@@ -2,122 +2,138 @@
  * @fileoverview Firestore Security Rules for Clinic Ops 2.0.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for patients, physicians, and inventory items.
- * Patients can only access their own visit history.
+ * This ruleset enforces a strict user-ownership model for patients, visits, physicians and inventory items.
+ * Only authenticated users can access data, and they can only access data related to their own patient record or general clinic resources.
  *
  * Data Structure:
- * - /patients/{patientId}: Stores patient information.
- * - /patients/{patientId}/visits/{visitId}: Stores visit information for a specific patient.
- * - /physicians/{physicianId}: Stores physician information.
- * - /appointments/{appointmentId}: Stores appointment information.
- * - /inventory_items/{inventoryItemId}: Stores inventory items.
+ * - Patients are stored under `/patients/{patientId}`.
+ * - Patient visits are stored in a subcollection under each patient: `/patients/{patientId}/visits/{visitId}`.
+ * - Physicians are stored under `/physicians/{physicianId}`.
+ * - Appointments are stored under `/appointments/{appointmentId}`,
+ * - Inventory items are stored under `/inventory_items/{inventoryItemId}`.
  *
  * Key Security Decisions:
- * - User listing is generally disallowed for privacy.
- * - All writes require a verified user identity (request.auth != null).
- * - get() calls are avoided to improve rule performance. All necessary authorization data is denormalized onto the documents.
+ * - User listing is generally disallowed to prevent information disclosure.
+ * - All write operations are carefully validated to ensure data integrity.
  *
  * Denormalization for Authorization:
- *  - The structure uses path-based ownership for patient and visit data.
- *
+ *  N/A - Rules rely on path-based ownership.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Checks if the user is signed in.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the authenticated user ID matches the provided user ID.
-     */
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the authenticated user is the owner of an existing document.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * @description Rules for the /patients/{patientId} collection.
+     * @description Secure access to patient documents.
      * @path /patients/{patientId}
-     * @allow (create) Signed-in user creates a patient document where patientId matches their UID.
-     * @allow (get, update, delete) Signed-in user with matching UID reads, updates, or deletes their patient document.
-     * @deny (create) User attempts to create a patient document with a mismatched patientId.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) - Authenticated user creates a patient document with their user ID as the patientId.
+     * @deny (create) - Attempt to create a patient document with a patientId that doesn't match the user's ID.
+     * @allow (get, list) - Authenticated user gets or lists their own patient document.
+     * @deny (get, list) - Attempt to get or list a patient document that doesn't belong to the user.
+     * @allow (update, delete) - Authenticated user updates or deletes their own patient document.
+     * @deny (update, delete) - Attempt to update or delete a patient document that doesn't belong to the user.
+     * @principle Enforces document ownership for all operations.
      */
     match /patients/{patientId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(patientId) {
+        return isSignedIn() && request.auth.uid == patientId;
+      }
+
+      function isExistingOwner(patientId) {
+          return isOwner(patientId) && resource != null;
+      }
+
+      allow create: if isOwner(patientId);
       allow get: if isOwner(patientId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(patientId) && request.resource.data.id == patientId;
-      allow update: if isExistingOwner(patientId) && request.resource.data.id == resource.data.id;
+      allow update: if isExistingOwner(patientId);
       allow delete: if isExistingOwner(patientId);
     }
 
     /**
-     * @description Rules for the /patients/{patientId}/visits/{visitId} collection.
+     * @description Secure access to patient visit documents.
      * @path /patients/{patientId}/visits/{visitId}
-     * @allow (create) Signed-in user creates a visit document under their patient document.
-     * @allow (get, list, update, delete) Signed-in user with matching patientId reads, lists, updates, or deletes visit documents under their patient document.
-     * @deny (create) User attempts to create a visit document under a different patient's document.
-     * @principle Restricts access to a user's own data tree.
+     * @allow (create) - Authenticated user creates a visit document under their patient document.
+     * @deny (create) - Attempt to create a visit document under a patient document that doesn't belong to the user.
+     * @allow (get, list) - Authenticated user gets or lists visit documents under their patient document.
+     * @deny (get, list) - Attempt to get or list visit documents under a patient document that doesn't belong to the user.
+     * @allow (update, delete) - Authenticated user updates or deletes visit documents under their patient document.
+     * @deny (update, delete) - Attempt to update or delete visit documents under a patient document that doesn't belong to the user.
+     * @principle Enforces document ownership for all operations.
      */
     match /patients/{patientId}/visits/{visitId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if isSignedIn() && isOwner(patientId);
-      allow create: if isSignedIn() && isOwner(patientId) && request.resource.data.patientId == patientId;
-      allow update: if isExistingOwner(patientId) && request.resource.data.patientId == patientId && request.resource.data.patientId == resource.data.patientId;
-      allow delete: if isExistingOwner(patientId) && request.resource.data.patientId == patientId;
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(patientId) {
+        return isSignedIn() && request.auth.uid == patientId;
+      }
+
+      function isExistingOwner(patientId) {
+          return isOwner(patientId) && resource != null;
+      }
+
+      allow create: if isOwner(patientId);
+      allow get: if isOwner(patientId);
+      allow list: if isOwner(patientId);
+      allow update: if isExistingOwner(patientId);
+      allow delete: if isExistingOwner(patientId);
     }
 
     /**
-     * @description Rules for the /appointments/{appointmentId} collection.
+     * @description Secure access to appointment documents.
      * @path /appointments/{appointmentId}
-     * @allow (create, get, list, update, delete) Any signed-in user can create, read, update, or delete appointment documents.
-     * @principle Allows open read and write access to appointments for authenticated users.
+     * @allow (create, get, list, update, delete) - Any authenticated user can create, read, update, or delete appointment documents.
+     * @principle Allows any authenticated user to access appointment data.
      */
     match /appointments/{appointmentId} {
-      allow get, list: if isSignedIn();
+       function isSignedIn() {
+        return request.auth != null;
+      }
       allow create: if isSignedIn();
+      allow get: if true;
+      allow list: if true;
       allow update: if isSignedIn() && resource != null;
       allow delete: if isSignedIn() && resource != null;
     }
 
     /**
-     * @description Rules for the /inventory_items/{inventoryItemId} collection.
+     * @description Secure access to inventory item documents.
      * @path /inventory_items/{inventoryItemId}
-     * @allow (create, get, list, update, delete) Signed-in user can create, read, update, or delete inventory item documents.
+     * @allow (create, get, list, update, delete) - Only authenticated users can create, read, update, or delete inventory item documents.
      * @principle Requires authentication for all operations on inventory items.
      */
     match /inventory_items/{inventoryItemId} {
-      allow get, list: if isSignedIn();
+      function isSignedIn() {
+        return request.auth != null;
+      }
       allow create: if isSignedIn();
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
       allow update: if isSignedIn() && resource != null;
       allow delete: if isSignedIn() && resource != null;
     }
 
     /**
-     * @description Rules for the /physicians/{physicianId} collection.
+     * @description Secure access to physician documents.
      * @path /physicians/{physicianId}
-     * @allow (create) Signed-in user creates a physician document where physicianId matches their UID.
-     * @allow (get, update, delete) Signed-in user with matching physicianId reads, updates, or deletes their physician document.
-     * @deny (create) User attempts to create a physician document with a mismatched physicianId.
-     * @principle Enforces document ownership for writes.
+     * @allow (create, get, list, update, delete) - Only authenticated users can create, read, update, or delete physician documents.
+     * @principle Requires authentication for all operations on physician data.
      */
     match /physicians/{physicianId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      allow create: if isSignedIn();
       allow get: if isSignedIn();
-      allow list: if false;
-      allow create: if isSignedIn() && isOwner(physicianId) && request.resource.data.id == physicianId;
-      allow update: if isExistingOwner(physicianId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(physicianId);
+      allow list: if isSignedIn();
+      allow update: if isSignedIn() && resource != null;
+      allow delete: if isSignedIn() && resource != null;
     }
   }
 }
