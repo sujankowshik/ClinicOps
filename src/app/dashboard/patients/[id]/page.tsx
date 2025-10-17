@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Calendar, Stethoscope, Loader2 } from 'lucide-react';
+import { Calendar, Stethoscope, Loader2, History, UserCheck } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useDashboard } from '../../layout';
 import type { Visit } from '@/lib/types';
@@ -43,6 +43,10 @@ export default function PatientDetailPage() {
   if (!patient) {
     notFound();
   }
+  
+  const lastVisit = visits && visits.length > 0
+    ? visits.reduce((latest, visit) => new Date(visit.date) > new Date(latest.date) ? visit : latest, visits[0])
+    : null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -56,16 +60,28 @@ export default function PatientDetailPage() {
             <CardTitle className="font-headline text-2xl">{patient.name}</CardTitle>
             <CardDescription>{patient.age} years old, {patient.gender}</CardDescription>
           </CardHeader>
-          <CardContent className="text-sm">
+          <CardContent className="text-sm space-y-3">
              <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span>Registered: {format(parseISO(patient.registeredDate), 'MMMM d, yyyy')}</span>
             </div>
+            {lastVisit && (
+                 <div className="flex items-center gap-3">
+                    <History className="h-4 w-4 text-muted-foreground" />
+                    <span>Last Visit: {format(parseISO(lastVisit.date), 'MMMM d, yyyy')}</span>
+                </div>
+            )}
+             {lastVisit && (
+                 <div className="flex items-center gap-3">
+                    <UserCheck className="h-4 w-4 text-muted-foreground" />
+                    <span>Treated by: {lastVisit.doctor}</span>
+                </div>
+            )}
           </CardContent>
         </Card>
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-lg">Active Conditions</CardTitle>
+                <CardTitle className="font-headline text-lg">Medical History</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-wrap gap-2">
