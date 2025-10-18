@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Calendar, Stethoscope, Loader2, History, UserCheck } from 'lucide-react';
+import { Calendar, Stethoscope, Loader2, History, UserCheck, Pill } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useDashboard } from '../../layout';
 import type { Visit } from '@/lib/types';
@@ -95,6 +95,28 @@ export default function PatientDetailPage() {
                     ))}
                      {patient.conditions.length === 0 && <p className="text-sm text-muted-foreground">No conditions recorded.</p>}
                 </div>
+            </CardContent>
+        </Card>
+         <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-lg flex items-center gap-2">
+                    <Pill className="h-5 w-5" />
+                    Current Medications
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {patient.medications && patient.medications.length > 0 ? (
+                    <ul className="space-y-2 text-sm">
+                        {patient.medications.map(med => (
+                            <li key={med.name} className="flex justify-between">
+                                <span className="font-medium">{med.name}</span>
+                                <span className="text-muted-foreground">{med.dosage}</span>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-muted-foreground">No medications prescribed.</p>
+                )}
             </CardContent>
         </Card>
       </div>

@@ -1,3 +1,4 @@
+
 export type Patient = {
   id: string;
   name: string;
@@ -7,6 +8,7 @@ export type Patient = {
   registeredDate: string;
   conditions: string[];
   visits: Visit[];
+  medications: { name: string; dosage: string }[];
 };
 
 export type Visit = {

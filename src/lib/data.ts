@@ -10,6 +10,10 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient1/100/100',
     registeredDate: '2022-08-15',
     conditions: ['Hypertension', 'Type 2 Diabetes'],
+    medications: [
+      { name: 'Lisinopril', dosage: '10mg daily' },
+      { name: 'Metformin', dosage: '500mg twice daily' },
+    ],
     visits: [
       { id: 'v1', patientId: '1', date: '2023-01-20', doctor: 'Dr. Evelyn Reed', reason: 'Annual Checkup', notes: 'Patient is stable.' },
       { id: 'v2', patientId: '1', date: '2023-07-22', doctor: 'Dr. Evelyn Reed', reason: 'Follow-up', notes: 'Blood pressure is well-controlled.' },
@@ -23,6 +27,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient2/100/100',
     registeredDate: '2021-03-10',
     conditions: ['Asthma'],
+    medications: [{ name: 'Albuterol Inhaler', dosage: 'as needed' }],
     visits: [
       { id: 'v3', patientId: '2', date: '2023-05-10', doctor: 'Dr. Ben Carter', reason: 'Asthma flare-up', notes: 'Prescribed new inhaler.' },
     ],
@@ -35,6 +40,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient3/100/100',
     registeredDate: '2023-01-05',
     conditions: ['Eczema'],
+    medications: [{ name: 'Hydrocortisone Cream', dosage: 'apply twice daily' }],
     visits: [
       { id: 'v4', patientId: '3', date: '2023-02-15', doctor: 'Dr. Isla Martinez', reason: 'Skin rash', notes: 'Topical cream prescribed.' },
     ],
@@ -47,6 +53,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient4/100/100',
     registeredDate: '2020-11-20',
     conditions: ['Osteoarthritis'],
+    medications: [{ name: 'Acetaminophen', dosage: '500mg as needed for pain' }],
     visits: [
       { id: 'v5', patientId: '4', date: '2023-09-01', doctor: 'Dr. Ben Carter', reason: 'Joint pain', notes: 'Physical therapy recommended.' },
     ],
@@ -59,6 +66,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient5/100/100',
     registeredDate: '2019-06-30',
     conditions: ['High Cholesterol'],
+    medications: [{ name: 'Atorvastatin', dosage: '20mg daily' }],
     visits: [
       { id: 'v6', patientId: '5', date: '2023-04-12', doctor: 'Dr. Evelyn Reed', reason: 'Lipid panel review', notes: 'Dietary changes discussed.' },
     ],
@@ -71,6 +79,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient6/100/100',
     registeredDate: '2022-11-01',
     conditions: ['Migraines'],
+    medications: [{ name: 'Sumatriptan', dosage: '50mg at onset' }],
     visits: [
         { id: 'v7', patientId: '6', date: '2023-03-05', doctor: 'Dr. Isla Martinez', reason: 'Headache evaluation', notes: 'Started on new preventive medication.' }
     ],
@@ -83,6 +92,10 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient7/100/100',
     registeredDate: '2018-02-19',
     conditions: ['Coronary Artery Disease', 'Gout'],
+    medications: [
+      { name: 'Aspirin', dosage: '81mg daily' },
+      { name: 'Allopurinol', dosage: '300mg daily' },
+    ],
     visits: [
         { id: 'v8', patientId: '7', date: '2023-08-11', doctor: 'Dr. Evelyn Reed', reason: 'Chest pain follow-up', notes: 'ECG normal. Continue medication.' }
     ],
@@ -95,6 +108,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient8/100/100',
     registeredDate: '2023-04-10',
     conditions: ['Anemia'],
+    medications: [{ name: 'Ferrous Sulfate', dosage: '325mg daily' }],
     visits: [
         { id: 'v9', patientId: '8', date: '2023-06-21', doctor: 'Dr. Ben Carter', reason: 'Fatigue and weakness', notes: 'Iron supplements prescribed.' }
     ],
@@ -107,6 +121,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient9/100/100',
     registeredDate: '2021-09-01',
     conditions: [],
+    medications: [],
     visits: [
         { id: 'v10', patientId: '9', date: '2023-10-15', doctor: 'Dr. Isla Martinez', reason: 'Annual Physical', notes: 'All clear.' }
     ],
@@ -119,6 +134,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient10/100/100',
     registeredDate: '2023-07-20',
     conditions: ['Allergies'],
+    medications: [{ name: 'Loratadine', dosage: '5mg daily' }],
     visits: [
         { id: 'v11', patientId: '10', date: '2023-09-05', doctor: 'Dr. Ben Carter', reason: 'Allergy testing', notes: 'Allergic to pollen and dust mites.' }
     ],
@@ -131,6 +147,7 @@ export const patients: Patient[] = [
     avatarUrl: 'https://picsum.photos/seed/patient11/100/100',
     registeredDate: '2023-01-15',
     conditions: ['Migraines'],
+    medications: [{ name: 'Rizatriptan', dosage: '10mg as needed' }],
     visits: [
       { id: 'v12', patientId: '11', date: '2023-03-10', doctor: 'Dr. Isla Martinez', reason: 'Headache', notes: 'Prescribed medication for migraines.' },
       { id: 'v13', patientId: '11', date: '2023-09-18', doctor: 'Dr. Evelyn Reed', reason: 'Follow-up', notes: 'Patient reports improvement in symptoms.' }

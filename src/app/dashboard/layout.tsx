@@ -23,7 +23,7 @@ type DashboardContextType = {
   doctors: Doctor[];
   appointments: Appointment[] | null;
   inventory: InventoryItem[] | null;
-  addPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => void;
+  addPatient: (patient: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits' | 'medications'>) => void;
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'time'>) => void;
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'status'>) => void;
   updateInventoryItemStock: (itemId: string, quantityUsed: number) => void;
@@ -134,7 +134,7 @@ export default function DashboardLayout({
     );
   }
 
-  const addPatient = (newPatientData: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits'>) => {
+  const addPatient = (newPatientData: Omit<Patient, 'id' | 'avatarUrl' | 'registeredDate' | 'conditions' | 'visits' | 'medications'>) => {
     const newPatient: Patient = {
         id: `p${patients.length + 1}`,
         ...newPatientData,
@@ -142,6 +142,7 @@ export default function DashboardLayout({
         registeredDate: new Date().toISOString(),
         conditions: [],
         visits: [],
+        medications: [],
     };
     setPatients(prevPatients => [newPatient, ...prevPatients]);
   };
